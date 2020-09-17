@@ -1,0 +1,7 @@
+Spring Framework RESTful API
+Vue.js
+Java
+WebSocket(실시간 통신)
+AWS(배포시)
+Jira(협업 툴)
+git(관리 툴)
