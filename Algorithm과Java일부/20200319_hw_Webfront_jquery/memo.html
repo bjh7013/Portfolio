@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="memo.css">
+<script src="https://code.jquery.com/jquery-3.4.1.js"
+	integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+	crossorigin="anonymous"></script>
+</head>
+<body>
+	<div class="memo-area" id="result">
+		  
+		<button class="bt">메모 추가</button>
+		<div class="memo-note">
+			<div class="memo-bar">
+				<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+			</div>
+			<div class="memo-edit">
+				<textarea class="memo-edit-area"></textarea>
+			</div>
+		</div>
+		<div class="memo-note2">
+			<div class="memo-bar2">
+				<span class="glyphicon glyphicon-chevron-down" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-pushpin" aria-hidden="true"></span>
+				<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+			</div>
+			<div class="memo-edit2">
+				<textarea class="memo-edit-area"></textarea>
+			</div>
+		</div>
+	</div>
+	<script>
+		n = 0;
+		m = 0;
+		$(".bt").on("click", function() {
+			$(".memo-note:nth-child(2)").css("left", "200px");
+		});
+		$(".memo-bar:nth-child(1) span:nth-child(1)").bind(
+				"click",
+				function(event) {
+					if (n % 2 == 0) {
+						$(".memo-bar span:nth-child(1)").removeClass(
+								"glyphicon glyphicon-chevron-up");
+						$(".memo-bar span:nth-child(1)").addClass(
+								"glyphicon glyphicon-chevron-down");
+						$(".memo-note").css("height", "22px");
+						$(".memo-edit").css("height", "0px");
+					}
+					if (n % 2 == 1) {
+						$(".memo-bar span:nth-child(1)").removeClass(
+								"glyphicon glyphicon-chevron-down");
+						$(".memo-bar span:nth-child(1)").addClass(
+								"glyphicon glyphicon-chevron-up");
+						$(".memo-note").css("height", "180px");
+						$(".memo-edit").css("height", "158px");
+					}
+					n++;
+
+				});
+		$(".memo-bar2:nth-child(1) span:nth-child(1)").bind(
+				"click",
+				function(event) {
+					if (m % 2 == 0) {
+						$(".memo-bar2 span:nth-child(1)").removeClass(
+								"glyphicon glyphicon-chevron-down");
+						$(".memo-bar2 span:nth-child(1)").addClass(
+								"glyphicon glyphicon-chevron-up");
+						$(".memo-note2").css("height", "180px");
+						$(".memo-edit2").css("height", "158px");
+					}
+					if (m % 2 == 1) {
+						$(".memo-bar2 span:nth-child(1)").removeClass(
+								"glyphicon glyphicon-chevron-up");
+						$(".memo-bar2 span:nth-child(1)").addClass(
+								"glyphicon glyphicon-chevron-down");
+						$(".memo-note2").css("height", "22px");
+						$(".memo-edit2").css("height", "0px");
+					}
+					m++;
+
+				});
+	</script>
+</body>
+
+</html>

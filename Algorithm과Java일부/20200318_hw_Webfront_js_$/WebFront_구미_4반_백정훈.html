@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Random Select</title>
+<link rel="stylesheet" href="css">
+<script src="https://code.jquery.com/jquery-3.4.1.js"
+	integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+	crossorigin="anonymous"></script>
+<style>
+* {
+	background-color: #DDD;
+}
+
+header {
+	text-align: center;
+	font-size: 30px;
+}
+
+form {
+	margin: 50px;
+	text-align: center;
+}
+
+section a img {
+	display: inline;
+	margin: 30px auto;
+	padding: 20px;
+	position: relative;
+	left: 150px;
+}
+
+div img {
+	display: block;
+	margin: 10px auto;
+}
+
+.bt {
+	display: block;
+	margin: 10px auto;
+	text-align: center;
+	width: 150px;
+	height: 50px;
+	cursor: pointer;
+}
+
+.bt:hover {
+	background-position: 0 -35px;
+}
+
+.bt:active {
+	background-position: 0 -70px;
+}
+
+.food {
+	opacity: 0.3;
+	filter: alpha(opacity = 30);
+}
+
+.food:hover {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+}
+
+.food:active {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: red;
+}
+
+.food:checked {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: red;
+}
+
+.food:visited {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: blue;
+}
+</style>
+
+</head>
+<body>
+	<form>
+		<input type="button" value="랜덤 선택" id="bt">
+	</form>
+
+	<header>
+		<p id="title">오늘의 메뉴 : 케이크</p>
+	</header>
+	<div>
+		<img src="cake.jpg" id="main" alt="cake"
+			style="width: 300px; height: 300px;">
+	</div>
+	<section>
+		<a href="#" id="cakea"><img src="cake.jpg" class="food" id="cake" alt="cake"
+			style="width: 300px; height: 300px;"></a> <a href="#" id="burgera"><img
+			src="burger.jpg" class="food" id="bur" alt="burger"
+			style="width: 300px; height: 300px;"></a> <a href="#" id="steaka"><img
+			src="steak.jpg" class="food" id="steak" alt="steak"
+			style="width: 300px; height: 300px;"></a> <a href="#" id="sanda"><img
+			src="sandwich.jpg" class="food" id="sand" alt="sandwich"
+			style="width: 300px; height: 300px;"></a>
+	</section>
+	<script>
+	$("a").on("click",function() {
+		$("header > p").html("오늘의 메뉴 :");
+		$("#cake").attr("style","width: 300px; height: 300px;");
+		$("#bur").attr("style","width: 300px; height: 300px;");
+		$("#steak").attr("style","width: 300px; height: 300px;");
+		$("#sand").attr("style","width: 300px; height: 300px;");
+	})
+		$("#cakea").on("click",function() {
+		$("header").html("오늘의 메뉴 : 케이크");
+		$("#cake").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		$("#main").attr("src","cake.jpg");
+	})
+		$("#burgera").on("click",function() {
+		$("header").html("오늘의 메뉴 : 햄버거");
+		$("#bur").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		$("#main").attr("src","burger.jpg");
+	})
+		$("#steaka").on("click",function() {
+		$("header").html("오늘의 메뉴 : 스테이크");
+		$("#steak").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		$("#main").attr("src","steak.jpg");
+	})
+		$("#sanda").on("click",function() {
+		$("header").html("오늘의 메뉴 : 샌드위치");
+		$("#sand").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		$("#main").attr("src","sandwich.jpg");
+	})
+	
+	$("#bt").click(function() {
+		var num = Math.floor(Math.random() * 4);
+		$("#cake").attr("style","width: 300px; height: 300px;");
+		$("#bur").attr("style","width: 300px; height: 300px;");
+		$("#steak").attr("style","width: 300px; height: 300px;");
+		$("#sand").attr("style","width: 300px; height: 300px;");
+		if(num==0) {
+			$("header").html("오늘의 메뉴 : 케이크");
+			$("#main").attr("src","cake.jpg");
+			$("#cake").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		}
+		if(num==1) {
+			$("header").html("오늘의 메뉴 : 햄버거");
+			$("#main").attr("src","burger.jpg");
+			$("#bur").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		}
+		if(num==2) {
+			$("header").html("오늘의 메뉴 : 스테이크");
+			$("#main").attr("src","steak.jpg");
+			$("#steak").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		}
+		if(num==3) {
+			$("header").html("오늘의 메뉴 : 샌드위치");
+			$("#main").attr("src","sandwich.jpg");
+			$("#sand").attr("style","width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red");
+		}
+		
+	})
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Random Select</title>
+<link rel="stylesheet" href="css">
+<style>
+* {
+	background-color: #DDD;
+}
+
+header {
+	text-align: center;
+	font-size: 30px;
+}
+
+form {
+	margin: 50px;
+	text-align: center;
+}
+
+section a img {
+	display: inline;
+	margin: 30px auto;
+	padding: 20px;
+	position: relative;
+	left: 150px;
+}
+
+div img {
+	display: block;
+	margin: 10px auto;
+}
+
+.bt {
+	display: block;
+	margin: 10px auto;
+	text-align: center;
+	width: 150px;
+	height: 50px;
+	cursor: pointer;
+}
+
+.bt:hover {
+	background-position: 0 -35px;
+}
+
+.bt:active {
+	background-position: 0 -70px;
+}
+
+.food {
+	opacity: 0.3;
+	filter: alpha(opacity = 30);
+}
+
+.food:hover {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+}
+.food:active {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: red;
+}
+.food:checked {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: red;
+}
+.food:visited {
+	opacity: 1.0;
+	filter: alpha(opacity = 100);
+	background-color: blue;
+}
+
+
+</style>
+<script>
+	function imgtoggle() {
+		var num = Math.floor(Math.random() * 4);
+		document.getElementById('cake').style="width: 300px; height: 300px;";
+		document.getElementById('bur').style="width: 300px; height: 300px;";
+		document.getElementById('steak').style="width: 300px; height: 300px;";
+		document.getElementById('sand').style="width: 300px; height: 300px;";
+		if(num==0){
+			document.getElementById('main').src="cake.jpg";
+			document.getElementById('title').innerHTML="오늘의 메뉴 : 케이크";
+			document.getElementById('cake').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		}
+		if(num==1){
+			document.getElementById('main').src="burger.jpg";
+			document.getElementById('title').innerHTML="오늘의 메뉴 : 햄버거";
+			document.getElementById('bur').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		}
+		if(num==2){
+			document.getElementById('main').src="steak.jpg";
+			document.getElementById('title').innerHTML="오늘의 메뉴 : 스테이크";
+			document.getElementById('steak').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		}
+		if(num==3){
+			document.getElementById('main').src="sandwich.jpg";
+			document.getElementById('title').innerHTML="오늘의 메뉴 : 샌드위치";
+			document.getElementById('sand').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		}
+	}
+	function cake() {
+		document.getElementById('main').src="cake.jpg";
+		document.getElementById('title').innerHTML="오늘의 메뉴 : 케이크";
+		document.getElementById('cake').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		document.getElementById('bur').style="width: 300px; height: 300px;";
+		document.getElementById('steak').style="width: 300px; height: 300px;";
+		document.getElementById('sand').style="width: 300px; height: 300px;";
+		
+	}
+	function burger() {
+		document.getElementById('main').src="burger.jpg";
+		document.getElementById('title').innerHTML="오늘의 메뉴 : 햄버거";
+		document.getElementById('bur').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		document.getElementById('cake').style="width: 300px; height: 300px;";
+		document.getElementById('steak').style="width: 300px; height: 300px;";
+		document.getElementById('sand').style="width: 300px; height: 300px;";
+	}
+	function steak() {
+		document.getElementById('main').src="steak.jpg";
+		document.getElementById('title').innerHTML="오늘의 메뉴 : 스테이크";
+		document.getElementById('steak').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		document.getElementById('cake').style="width: 300px; height: 300px;";
+		document.getElementById('bur').style="width: 300px; height: 300px;";
+		document.getElementById('sand').style="width: 300px; height: 300px;";
+	}
+	function sand() {
+		document.getElementById('main').src="sandwich.jpg";
+		document.getElementById('title').innerHTML="오늘의 메뉴 : 샌드위치";
+		document.getElementById('sand').style="width: 300px; height: 300px; opacity: 1.0; filter: alpha(opacity = 100); background-color: red;";
+		document.getElementById('cake').style="width: 300px; height: 300px;";
+		document.getElementById('steak').style="width: 300px; height: 300px;";
+		document.getElementById('bur').style="width: 300px; height: 300px;";
+	}
+	</script>
+</head>
+<body>
+	<form>
+		<input type="button" value="랜덤 선택" class="bt" onclick="imgtoggle()">
+	</form>
+
+	<header>
+		<p id="title">오늘의 메뉴 : 케이크</p>
+	</header>
+	<div>
+		<img src="cake.jpg" id="main" alt="cake" style="width: 300px; height: 300px;">
+	</div>
+	<section>
+		<a href="#" onclick="cake();"><img src="cake.jpg" class="food" id="cake" alt="cake" style="width: 300px; height: 300px;"></a> 
+		<a href="#" onclick="burger();"><img src="burger.jpg" class="food" id="bur" alt="burger" style="width: 300px; height: 300px;"></a>
+		<a href="#" onclick="steak();"><img src="steak.jpg" class="food" id="steak" alt="steak" style="width: 300px; height: 300px;"></a> 
+		<a href="#" onclick="sand();"><img src="sandwich.jpg" class="food" id="sand" alt="sandwich" style="width: 300px; height: 300px;"></a>
+	</section>
+</body>
+</html>
