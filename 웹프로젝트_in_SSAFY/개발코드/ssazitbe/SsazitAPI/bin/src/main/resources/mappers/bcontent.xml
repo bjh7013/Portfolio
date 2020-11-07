@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.BcontentDAO">
+
+	<!-- 
+		private int 	bookNo;		/*PK FK 책 번호*/
+		private int 	seqNo;		/*PK 순서*/
+		private int 	articleNo;		/*FK NN 게시글 번호(출처 추적용)*/
+		private String 	chapter;		/*NN 소제목*/
+		private String 	content;		/*NN 내용*/
+	
+		private String 	searchKey;		/*검색 키*/
+		private String 	searchValue;	/*검색 값*/
+		private String 	orderKey;		/*정렬 키*/
+		private String 	orderValue;		/*정렬 값*/
+		private int 	limitStart;		/*페이징 시작*/
+		private int 	limitEnd;		/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertBcontent" parameterType="Bcontent">
+	 	insert into Bcontent(
+	 		book_no,
+	 		seq_no,
+	 		article_no,
+	 		chapter,
+	 		content
+	 		)
+	 	values (
+	 		#{bookNo},
+	 		#{seqNo},
+	 		#{articleNo},
+	 		#{chapter},
+	 		#{content}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <!-- 순서변경 시 articleNo, chapter, content 데이터 자체를 수정 -->
+	 <update id="updateBcontent" parameterType="Bcontent">
+	 	update
+	 		Bcontent
+	 	set
+	 		article_no = #{articleNo},
+	 		chapter = #{chapter},
+	 		content = #{content}
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		seq_no = #{seqNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteBcontent" parameterType="Bcontent">
+	 	delete from
+	 		Bcontent
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		seq_no = #{seqNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectBcontentOne" parameterType="Bcontent" resultType="Bcontent">
+	 	select
+	 		book_no as bookNo,
+	 		seq_no as seqNo,
+	 		article_no as articleNo,
+	 		chapter as chapter,
+	 		content as content
+	 	from
+	 		Bcontent
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		seq_no = #{seqNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectBcontentList" parameterType="Bcontent" resultType="Bcontent">
+	 	select
+	 		book_no as bookNo,
+	 		seq_no as seqNo,
+	 		article_no as articleNo,
+	 		chapter as chapter,
+	 		content as content
+	 	from
+	 		Bcontent
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="seqNo > 0">
+	 		and seq_no = #{seqNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="chapter != null and chapter != ''">
+	 		and chapter like CONCAT('%',#{chapter},'%')
+	 	</if>
+	 	<if test="content != null and content != ''">
+	 		and content like CONCAT('%',#{content},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'chapter'">
+	 					order by chapter DESC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content DESC
+	 				</when>
+	 				<otherwise>
+	 					order by seq_no DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'chapter'">
+	 					order by chapter ASC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content ASC
+	 				</when>
+	 				<otherwise>
+	 					order by seq_no ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectBcontentCount" parameterType="Bcontent" resultType="Integer">
+	 	select
+	 		count(book_no)
+	 	from
+	 		Bcontent
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="seqNo > 0">
+	 		and seq_no = #{seqNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="chapter != null and chapter != ''">
+	 		and chapter like CONCAT('%',#{chapter},'%')
+	 	</if>
+	 	<if test="content != null and content != ''">
+	 		and content like CONCAT('%',#{content},'%')
+	 	</if>
+	 </select>
+
+</mapper>

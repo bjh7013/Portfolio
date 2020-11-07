@@ -1,0 +1,319 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.UserDAO">
+	<select id="selectUserOne" resultType="User"><!-- 다른 회원 정보 조회 -->
+		select user.user_no userNo, user_id userId, nick_name nickName, e_mail
+			eMail, user_exp userExp, user_level userLevel, profile_img profileImg,
+			blog_no blogNo, blog_name blogName, blog_birth blogBirth, is_admin isAdmin,
+			user_name userName, phone_num phoneNum
+		from user 
+			LEFT OUTER JOIN
+			blog 
+			ON user.user_no = blog.user_no
+		where 1=1 
+		<if test="userNo">
+			and user.user_no = #{userNo}
+		</if>
+		<if test="userId">
+			and user.user_id = #{userId}
+		</if>
+	</select> 
+
+	<select id="myInfo" resultType="User"><!-- 내 정보 조회 -->
+		select user.user_no userNo, user_id userId, user_name userName,
+			nick_name nickName, e_mail eMail, user_exp userExp, profile_img profileImg,
+			user_level userLevel, blog_no blogNo, blog_name blogName, blog_birth blogBirth
+		from user 
+			LEFT OUTER JOIN 
+			blog 
+			ON user.user_no = blog.user_no
+		where
+		user.user_no = #{userNo}
+	</select>
+
+	<select id="pwCheck" resultType="User">
+		select user.user_no userNo, user_id userId, user_pw userPw, user_name
+		userName, nick_name nickName, e_mail eMail,
+		phone_num phoneNum, join_date joinDate, last_login lastLogin, withdrawal_date
+		withdrawalDate, is_admin isAdmin, profile_img profileImg,
+		user_exp userExp, user_level userLevel, blog_no blogNo, blog_name blogName,
+		blog_birth blogBirth
+		from user LEFT OUTER JOIN blog ON user.user_no =
+		blog.user_no
+		where user.user_no = #{userNo} AND user_pw = #{userPw}
+	</select>
+	<select id="login" resultType="User">
+		select user.user_no userNo,
+		user_id userId, user_name userName, nick_name nickName, e_mail eMail,
+		phone_num phoneNum, join_date joinDate, last_login lastLogin,
+		withdrawal_date withdrawalDate, is_admin isAdmin, profile_img profileImg,
+		user_exp userExp, user_level userLevel, blog_no blogNo, blog_name blogName,
+		blog_birth blogBirth
+		from user LEFT OUTER JOIN blog ON user.user_no =
+		blog.user_no
+		where user.user_id = #{userId} AND user_pw = #{userPw} AND
+		withdrawal_date is null
+	</select>
+
+	<select id="idCheck" resultType="User">
+		select user_no userNo
+		from user
+		where user_id = #{userId}
+	</select>
+
+	<select id="selectUserList" resultType="User">
+		select user_no userNo, user_id userId, nick_name nickName, profile_img profileImg
+		from user
+		where
+		1=1
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			and (user_id
+			like CONCAT('%', #{searchValue}, '%')
+		</if>
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			or nick_name
+			like CONCAT('%', #{searchValue}, '%')
+		</if>
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			or user_name
+			like CONCAT('%', #{searchValue}, '%'))
+		</if>
+		<if test='limitStart!=-1'>
+			limit #{limitStart}, 12
+		</if>
+	</select>
+	
+	<select id="selectUserListCount" resultType="Integer">
+		select count(*)
+		from user
+		where
+		1=1
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			and (user_id
+			like CONCAT('%', #{searchValue}, '%')
+		</if>
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			or nick_name
+			like CONCAT('%', #{searchValue}, '%')
+		</if>
+		<if test='searchValue!=null and !searchValue.trim().equals("")'>
+			or user_name
+			like CONCAT('%', #{searchValue}, '%'))
+		</if>
+	</select>
+
+	<insert id="insertUser">
+		insert into user(user_id, user_pw, user_name, nick_name, e_mail, phone_num,
+		join_date)
+		values(#{userId}, #{userPw}, #{userName}, #{nickName}, #{eMail}, #{phoneNum}, now())
+	</insert>
+
+	<update id="updateUser">
+		update user
+		set user_pw = #{userPw}, user_name = #{userName}, nick_name = #{nickName}
+		, e_mail = #{eMail}, phone_num = #{phoneNum}
+		where user_no = #{userNo} AND join_date is not null
+	</update>
+
+	<update id="withdrawal">
+		update user
+		set withdrawal_date = now()
+		where user_no = #{userNo}
+	</update>
+
+	<update id="updateNickName">
+		update user
+		set nick_name = #{nickName}
+		where user_no = #{userNo}
+	</update>
+	
+	<select id="selectFollowingList" resultType="Follow">
+		SELECT  a.user_no userNo, nick_name nickName, user_id userId, blog_no blogNo, blog_name
+			blogName, user_level userLevel, following, profile_img profileImg
+		FROM (SELECT * FROM user
+			INNER JOIN follow ON follow.following = user.user_no WHERE follower = #{userNo}) a
+			LEFT OUTER JOIN blog
+			ON a.user_no = blog.user_no
+		WHERE 
+			1=1
+			<if test="searchValue != null and searchValue != ''">
+				and
+				user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR blog_name like CONCAT('%', #{searchValue}, '%');
+			</if>
+
+	</select>
+	<select id="selectFollowerList" resultType="Follow">
+		SELECT  a.user_no userNo, nick_name nickName, user_id userId, blog_no blogNo, blog_name
+			blogName, user_level userLevel, follower, profile_img profileImg
+		FROM (SELECT * FROM user 
+			INNER JOIN follow ON follow.follower = user.user_no WHERE following = #{userNo}) a
+			LEFT OUTER JOIN blog
+			ON a.user_no = blog.user_no
+		WHERE 
+			1=1
+			<if test="searchValue != null and searchValue != ''">
+			and
+			user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR blog_name like CONCAT('%', #{searchValue}, '%')			
+			</if>
+	</select>
+	<select id="selectF4FList" resultType="Follow">
+		SELECT  a.user_no, nick_name nickName, user_id userId, blog_no blogNo, blog_name
+		blogName, user_level userLevel, following
+		FROM 
+	        (SELECT * 
+			FROM user
+				INNER JOIN 
+				(select a.follower, a.following, a.follow_date
+				from follow a 
+					INNER JOIN 
+	                follow b 
+	                ON a.following = b.follower 
+				where a.follower = b.following) 
+				f4f 
+				ON f4f.following = user.user_no 
+	        WHERE follower = #{userNo}) a
+			LEFT OUTER JOIN blog
+			ON a.user_no = blog.user_no
+		WHERE user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR blog_name like CONCAT('%', #{searchValue}, '%')
+	</select>
+	
+	<insert id="insertFollow">
+		INSERT INTO follow(follower, following, follow_date) VALUES(#{follower},
+		#{following}, now())
+	</insert>
+	<delete id="deleteFollow">
+		DELETE FROM follow
+		WHERE follower = #{follower} AND following = #{following}
+	</delete>
+
+	<select id="selectSendMessageList" resultType="Message">
+		SELECT message_no messageNo, message_to messageTo, content, send_date
+		sendDate, is_read isRead, user_name userName, nick_name nickName,
+		user_level userLevel
+		FROM message INNER JOIN user
+			ON message_to = user_no
+		WHERE message_from = #{messageFrom} 
+			AND send_delete = 0
+			AND ( user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR content like CONCAT('%', #{searchValue}, '%'))
+		ORDER BY send_date desc
+					limit #{page}, 9
+	</select>
+	
+	<select id="selectSendMessageCount" resultType="Integer">
+		SELECT count(*)
+		FROM message INNER JOIN user
+			ON message_to = user_no
+		WHERE message_from = #{messageFrom} 
+			AND send_delete = 0
+			AND ( user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR content like CONCAT('%', #{searchValue}, '%'))
+	</select>
+	
+	<select id="selectReceiveMessageList" resultType="Message">
+		SELECT message_no messageNo, message_from messageFrom, content, send_date
+		sendDate, is_read isRead, user_name userName, nick_name nickName,
+		user_level userLevel
+		FROM message INNER JOIN user
+		ON message_from = user_no
+		WHERE message_to = #{messageTo} 
+			AND receive_delete = 0
+			AND ( user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR content like CONCAT('%', #{searchValue}, '%'))
+		ORDER BY send_date desc
+					limit #{page}, 9
+	</select>
+	
+	<select id="selectReceiveMessageCount" resultType="Integer">
+		SELECT count(*)
+		FROM message INNER JOIN user
+		ON message_from = user_no
+		WHERE message_to = #{messageTo} 
+			AND receive_delete = 0
+			AND ( user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR content like CONCAT('%', #{searchValue}, '%'))
+	</select>
+	
+	<insert id="insertMessage">
+		INSERT INTO message(message_to, message_from, content, send_date)
+		VALUES(#{messageTo}, #{messageFrom}, #{content}, now())
+	</insert>
+	<update id="readMessage">
+		UPDATE message
+		SET is_read = 1
+		WHERE message_no = #{messageNo}
+	</update>
+	<update id="sendDelete">
+		UPDATE message
+		SET send_delete = 1
+		WHERE message_no = #{messageNo} AND message_from = #{userNo}
+	</update>
+	<update id="receiveDelete">
+		UPDATE message
+		SET receive_delete = 1
+		WHERE message_no = #{messageNo} AND message_to = #{userNo}
+	</update>
+
+	<!-- 블락 -->
+	<select id="selectBlockList" resultType="Block">
+		 SELECT blocker, blocking, block_date blockDate, user_name userName, nick_name nickName, user_id userId, blog_name blogName
+		FROM (select * 
+			from user INNER JOIN block ON blocking = user_no
+			where blocker = #{userNo}) a 
+            LEFT OUTER JOIN
+            blog
+            ON a.user_no = blog.user_no
+		WHERE 
+			1=1
+			<if test="searchValue != null and searchValue != ''">
+			and
+					user_id like CONCAT('%', #{searchValue}, '%') 
+					OR nick_name like CONCAT('%', #{searchValue}, '%')
+					OR blog_name like CONCAT('%', #{searchValue}, '%');  
+			</if>
+	</select>
+	
+	<insert id="insertBlock">
+		INSERT INTO block(blocker, blocking, block_date) VALUES(#{blocker}, #{blocking}, now())
+	</insert>
+	<delete id="deleteBlock">
+		DELETE FROM block
+		WHERE blocker = #{blocker} AND blocking = #{blocking}
+	</delete>
+	
+	<update id="updateProfile" parameterType="User">
+		update
+			user
+		set
+			profile_img = #{profileImg}
+		where
+			user_no = #{userNo}
+	</update>
+	
+	<select id="isF4F" resultType="User">
+		select a.follower as follower
+		from follow a INNER JOIN follow b 
+            ON a.following = b.follower 
+		where a.follower = b.following
+			and a.follower = #{userNo} and a.following = #{loginUserNo}
+	</select>
+	
+	<select id="isFollowing" resultType="User">
+		select following as userNo, nick_name as nickName
+		from follow inner join user on following = user_no
+		where follower = #{follower}
+			and following = #{following}
+	</select>
+</mapper>

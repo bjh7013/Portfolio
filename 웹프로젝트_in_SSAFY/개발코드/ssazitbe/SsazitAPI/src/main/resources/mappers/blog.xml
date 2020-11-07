@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.BlogDAO">
+
+	<!-- 
+			private int 	blogNo;			/*PK AI 블로그번호*/
+			private int 	userNo;				/*FK NN 블로그주인번호*/
+			private String 	blogName;			/*NN 블로그명*/
+			private String	blogBirth;			/*NN 블로그 생성 일시*/
+			
+			private String 	searchKey;			/*검색 키*/
+			private String 	searchValue;		/*검색 값*/
+			private String 	orderKey;			/*정렬 키*/
+			private String 	orderValue;			/*정렬 값*/
+			private int 	limitStart;			/*페이징 시작*/
+			private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	
+	<!-- 입력 -->
+	<insert id="insertBlog" parameterType="Blog">
+		insert into blog(
+			user_no, 
+			blog_name, 
+			blog_birth
+			)
+		values (
+			#{userNo}, 
+			#{blogName}, 
+			now()
+			)
+	</insert>
+	
+	<!-- 수정 -->
+	<update id="updateBlog" parameterType="Blog">
+		update 
+			blog
+		set
+			blog_name = #{blogName}
+		where
+			1=1
+		and
+			blog_no = #{blogNo}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="deleteBlog" parameterType="Blog">
+		delete from 
+			blog
+		where 
+			1 =1
+		and
+			blog_no = #{blogNo}
+	</delete>
+	
+	<!-- 상세보기 -->
+	<select id="selectBlogOne" parameterType="Blog" resultType="Blog">
+		select
+			blog_no as blogNo, 
+			user_no as userNo, 
+			blog_name as blogName, 
+			blog_birth as blogBirth
+		from
+			blog
+		where
+			1 = 1
+		and
+			blog_no = #{blogNo}
+	</select>
+	
+	<!-- 검색(List) -->
+	<select id="selectBlogList" parameterType="Blog" resultType="Blog">
+		select
+			blog_no as blogNo, 
+			user_no as userNo, 
+			blog_name as blogName, 
+			blog_birth as blogBirth,
+            profile_img as profileImg,
+            user_id as userId,
+            nick_name as nickName
+		from
+			blog natural join user
+		where
+			1 = 1
+		<!-- 검색조건 -->
+		<if test="blogNo > 0">
+			and blog_no = #{blogNo}
+		</if>
+		<if test="userNo > 0">
+			and user_no = #{userNo}
+		</if>
+		<if test="blogName != null and !blogName.trim().equals('')">
+			and blog_name like CONCAT('%',#{blogName},'%')
+		</if>
+		<if test="blogBirth != null and !blogBirth.trim().equals('')">
+			and blog_birth like CONCAT('%',#{blogBirth},'%')
+		</if>
+		<!-- 정렬조건 -->
+		<choose>
+			<when test="orderValue == 'DESC'">
+				<choose>
+					<when test="orderKey == 'blogNo'">
+						order by blog_no DESC
+					</when>
+					<when test="orderKey == 'userNo'">
+						order by user_no DESC
+					</when>
+					<when test="orderKey == 'blogName'">
+						order by blog_name DESC
+					</when>
+					<when test="orderKey == 'blogBirth'">
+						order by blog_birth DESC
+					</when>
+					<otherwise>
+						order by blog_no DESC
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="orderKey == 'blogNo'">
+						order by blog_no ASC
+					</when>
+					<when test="orderKey == 'userNo'">
+						order by user_no ASC
+					</when>
+					<when test="orderKey == 'blogName'">
+						order by blog_name ASC
+					</when>
+					<when test="orderKey == 'blogBirth'">
+						order by blog_birth ASC
+					</when>
+					<otherwise>
+						order by blog_no ASC
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		<!-- page처리 위한 limit -->
+		<if test="limitStart >= 0">
+		    limit #{limitStart}, 9
+		</if>
+	</select>
+	
+	<!-- 검색(갯수) -->
+	<select id="selectBlogCount" parameterType="Blog" resultType="Integer">
+		select
+			count(blog_no)
+		from
+			blog
+		where
+			1 = 1
+		<!-- 검색조건 -->
+		<if test="blogNo > 0">
+			and blog_no = #{blogNo}
+		</if>
+		<if test="userNo > 0">
+			and user_no = #{userNo}
+		</if>
+		<if test="blogName != null and !blogName.trim().equals('')">
+			and blog_name like CONCAT('%',#{blogName},'%')
+		</if>
+		<if test="blogBirth != null and !blogBirth.trim().equals('')">
+			and blog_birth like CONCAT('%',#{blogBirth},'%')
+		</if>
+	</select>
+	
+	<!-- 사용자 아이디로 blog 정보 가져오기 -->
+	<select id="selectUserBlog" parameterType="String" resultType="Blog">
+		select 
+			blog_no as blogNo, 
+			blog.user_no as userNo, 
+			blog_name as blogName, 
+			blog_birth as blogBirth,
+            user_id as userId,
+            nick_name as nickName,
+            user_level as userLevel, 
+			profile_img as profileImg
+		from
+			blog INNER JOIN user ON blog.user_no = user.user_no
+		where
+			user.user_id = #{userId}
+	</select>
+</mapper>

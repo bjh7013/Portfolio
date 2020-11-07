@@ -1,0 +1,168 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.ArticlefavoriteDAO">
+
+	<!-- 
+		private int 	favoriteNo;			/*PK AI 즐겨찾기 번호*/
+		private int 	userNo;					/*FK NN 사용자 번호*/
+		private int 	articleNo;				/*FK NN 글 번호*/
+		private String 	favoriteDate;			/*NN default now() 즐겨찾기 추가 일시*/
+	
+		private String 	searchKey;				/*검색 키*/
+		private String 	searchValue;			/*검색 값*/
+		private String 	orderKey;				/*정렬 키*/
+		private String 	orderValue;				/*정렬 값*/
+		private int 	limitStart;				/*페이징 시작*/
+		private int 	limitEnd;				/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertArticlefavorite" parameterType="Articlefavorite">
+	 	insert into articlefavorite(
+	 		user_no,
+	 		article_no,
+	 		favorite_date
+	 		)
+	 	values (
+	 		#{userNo},
+	 		#{articleNo},
+	 		now()
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateArticlefavorite" parameterType="Articlefavorite">
+	 	update
+	 		articlefavorite
+	 	set
+	 		user_no = #{userNo},
+	 		article_no = #{articleNo},
+	 		favorite_date = now()
+	 	where
+	 		1=1
+	 	and
+	 		favorite_no = #{favoriteNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteArticlefavorite" parameterType="Articlefavorite">
+	 	delete from
+	 		articlefavorite
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 	and
+	 		user_no = #{userNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectArticlefavoriteOne" parameterType="Articlefavorite" resultType="Articlefavorite">
+	 	select
+	 		favorite_no as favoriteNo,
+	 		user_no as userNo,
+	 		article_no as articleNo,
+	 		favorite_date as favoriteDate
+	 	from
+	 		articlefavorite
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 	and
+	 		article_no = #{articleNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectArticlefavoriteList" parameterType="Articlefavorite" resultType="Articlefavorite">
+	 	select
+	 		favorite_no as favoriteNo,
+	 		blog.user_no as userNo,
+	 		article.article_no as articleNo,
+	 		favorite_date as favoriteDate,
+            title as articleTitle,
+            blog_name as blogName,
+            nick_name as nickName
+	 	from
+	 		articlefavorite 
+            inner join article on article.article_no = articlefavorite.article_no
+            inner join blog on blog.user_no = article.user_no
+            inner join user on blog.user_no = user.user_no
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="favoriteNo > 0">
+	 		and favorite_no = #{favoriteNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and articlefavorite.user_no = #{userNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and articlefavorite.article_no = #{articleNo}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'favoriteNo'">
+	 					order by favorite_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by favorite_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'favoriteNo'">
+	 					order by favorite_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by favorite_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page처리 위한 limit -->
+		<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectArticlefavoriteCount" parameterType="Articlefavorite" resultType="Integer">
+	 	select
+	 		count(favorite_no)
+	 	from
+	 		articlefavorite
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="favoriteNo > 0">
+	 		and favorite_no = #{favoriteNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="favoriteDate != null and favoriteDate != ''">
+	 		and favorite_date like CONCAT('%',#{favoriteDate},'%')
+	 	</if>
+	 </select>
+	 
+</mapper>

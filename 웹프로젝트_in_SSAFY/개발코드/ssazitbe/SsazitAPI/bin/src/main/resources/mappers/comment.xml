@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.CommentDAO">
+
+	<!-- 
+			private int 	commentNo;		/*PK AI 댓글번호*/
+			private int 	articleNo;			/*FK 게시글 번호*/
+			private int 	bookNo;				/*FK 책 번호*/
+			private int 	userNo;				/*FK NN 작성자*/
+			private String 	content;			/*NN 내용*/
+			private String 	writeDate;			/*NN default now() 작성일자*/
+			private boolean isPick;				/*NN default false 채택여부(true|false)*/
+			private int 	likeCount;			/*NN default 0 추천수(트리거 참조칼럼)*/
+			
+			private String 	searchKey;			/*검색 키*/
+			private String 	searchValue;		/*검색 값*/
+			private String 	orderKey;			/*정렬 키*/
+			private String 	orderValue;			/*정렬 값*/
+			private int 	limitStart;			/*페이징 시작*/
+			private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertComment" parameterType="Comment">
+	 	insert into Comment(
+	 		article_no,
+	 		book_no,
+	 		user_no,
+	 		content,
+	 		write_date,
+	 		is_pick
+	 		)
+	 	values (
+	 		#{articleNo},
+	 		#{bookNo},
+	 		#{userNo},
+	 		#{content},
+	 		now(),
+	 		#{isPick}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateComment" parameterType="Comment">
+	 	update
+	 		Comment
+	 	set
+	 		article_no = #{articleNo},
+	 		book_no = #{bookNo},
+	 		user_no = #{userNo},
+	 		content = #{content},
+	 		write_date = now(),
+	 		is_pick = #{isPick}
+	 	where
+	 		1=1
+	 	and
+	 		comment_no = #{commentNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteComment" parameterType="Comment">
+	 	delete from
+	 		Comment
+	 	where
+	 		1=1
+	 	and
+	 		comment_no = #{commentNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectCommentOne" parameterType="Comment" resultType="Comment">
+	 	select
+	 		comment_no as commentNo,
+	 		article_no as articleNo,
+	 		book_no as bookNo,
+	 		user_no as userNo,
+	 		content as content,
+	 		write_date as writeDate,
+	 		is_pick as isPick,
+	 		like_count as likeCount
+	 	from
+	 		Comment
+	 	where
+	 		1=1
+	 	and
+	 		comment_no = #{commentNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectCommentList" parameterType="Comment" resultType="Comment">
+	 	select
+	 		comment_no as commentNo,
+	 		article_no as articleNo,
+	 		book_no as bookNo,
+	 		user_no as userNo,
+	 		content as content,
+	 		write_date as writeDate,
+	 		is_pick as isPick,
+	 		like_count as likeCount
+	 	from
+	 		Comment
+	 	where
+	 	<!-- 검색조건 -->
+	 	<if test="commentNo > 0">
+	 		and comment_no = #{commentNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="content != null and content != ''">
+	 		and content like CONCAT('%',#{content},'%')
+	 	</if>
+	 	<if test="writeDate != null and writeDate != ''">
+	 		and write_date like CONCAT('%',#{writeDate},'%')
+	 	</if>
+	 	<if test="isPick > -1">
+	 		and is_pick = #{isPick}	
+	 	</if>
+	 	<if test="likeCount > 0">
+	 		and like_count = #{likeCount}
+	 	</if>
+	 	order by is_pick DESC , like_count DESC , write_date DESC
+	 	<!-- 정렬조건 -->
+	 	<!-- 
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'commentNo'">
+	 					order by comment_no DESC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content DESC
+	 				</when>
+	 				<when test="orderKey == 'isPick'">
+	 					order by is_pick DESC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count DESC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'commentNo'">
+	 					order by comment_no ASC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content ASC
+	 				</when>
+	 				<when test="orderKey == 'isPick'">
+	 					order by is_pick ASC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count ASC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	-->
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectCommentCount" parameterType="Comment" resultType="Integer">
+	 	select
+	 		count(comment_no)
+	 	from
+	 		Comment
+	 	where
+	 	<!-- 검색조건 -->
+	 	<if test="commentNo > 0">
+	 		and comment_no = #{commentNo}
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="content != null and content != ''">
+	 		and content like CONCAT('%',#{content},'%')
+	 	</if>
+	 	<if test="writeDate != null and writeDate != ''">
+	 		and write_date like CONCAT('%',#{writeDate},'%')
+	 	</if>
+	 	<if test="isPick > -1">
+	 		and is_pick = #{isPick}	
+	 	</if>
+	 	<if test="likeCount > 0">
+	 		and like_count = #{likeCount}
+	 	</if>
+	 </select>
+
+</mapper>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.TagDAO">
+
+	<!-- 
+		private int 	tagNo;		/*PK AI 대표태그 번호*/
+		private String 	tagName;		/*NN 태그 명*/
+		
+		private String 	searchKey;		/*검색 키*/
+		private String 	searchValue;	/*검색 값*/
+		private String 	orderKey;		/*정렬 키*/
+		private String 	orderValue;		/*정렬 값*/
+		private int 	limitStart;		/*페이징 시작*/
+		private int 	limitEnd;		/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertTag" parameterType="Tag">
+	 	insert into Tag(
+	 		tag_name
+	 		)
+	 	values (
+	 		#{tagName}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateTag" parameterType="Tag">
+	 	update
+	 		Tag
+	 	set
+	 		tag_name = #{tagName}
+	 	where
+	 		1=1
+	 	and
+	 		tag_no = #{tagNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteTag" parameterType="Tag">
+	 	delete from
+	 		Tag
+	 	where
+	 		1=1
+	 	and
+	 		tag_no = #{tagNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectTagOne" parameterType="Tag" resultType="Tag">
+	 	select
+	 		tag_no as tagNo,
+	 		tag_name as tagName
+	 	from
+	 		Tag
+	 	where
+	 		1=1
+	 	and
+	 		tag_no = #{tagNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectTagList" parameterType="Tag" resultType="Tag">
+	 	select
+	 		tag_no as tagNo,
+	 		tag_name as tagName
+	 	from
+	 		Tag
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="tagNo > 0">
+	 		and tag_no = #{tagNo}
+	 	</if>
+	 	<if test="tagName != null and tagName != ''">
+	 		and tag_name like CONCAT('%',#{tagName},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'tagNo'">
+	 					order by tag_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by tag_name DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'tagNo'">
+	 					order by tag_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by tag_name ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectTagCount" parameterType="Tag" resultType="Integer">
+	 	select
+	 		count(tag_no)
+	 	from
+	 		Tag
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="tagNo > 0">
+	 		and tag_no = #{tagNo}
+	 	</if>
+	 	<if test="tagName != null and tagName != ''">
+	 		and tag_name like CONCAT('%',#{tagName},'%')
+	 	</if>
+	 </select>
+
+</mapper>

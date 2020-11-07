@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.BookseriesDAO">
+
+	<!-- 
+		private int 	bookNo;			/*PK FK 책 번호*/
+		private int 	seriesNo;		/*PK FK 시리즈 번호*/
+	
+		private String 	orderKey;			/*정렬 키*/
+		private String 	orderValue;			/*정렬 값*/
+		private int 	limitStart;			/*페이징 시작*/
+		private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertBookseries">
+	 	insert into bookseries(
+	 		book_no,
+	 		series_no
+	 		)
+	 	values (
+	 		#{bookNo},
+	 		#{seriesNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateBookseries">
+	 	update
+	 		bookseries
+	 	set
+	 		book_no = #{bookNo},
+	 		series_no = #{seriesNo}
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		series_no = #{seriesNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteBookseries">
+	 	delete from
+	 		bookseries
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		series_no = #{seriesNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectBookseriesOne" parameterType="Bookseries" resultType="Bookseries">
+	 	select
+	 		book_no as bookNo,
+	 		series_no as seriesNo
+	 	from
+	 		bookseries
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		series_no = #{seriesNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectBookseriesList" parameterType="Bookseries" resultType="Bookseries">
+	 	select
+	 		book_no as bookNo,
+	 		series_no as seriesNo
+	 	from
+	 		bookseries
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="seriesNo > 0">
+	 		and series_no = #{seriesNo}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'seriesNo'">
+	 					order by series_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by book_no DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'seriesNo'">
+	 					order by series_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by book_no ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectBookseriesCount" parameterType="Bookseries" resultType="Integer">
+	 	select
+	 		count(book_no)
+	 	from
+	 		bookseries
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="seriesNo > 0">
+	 		and series_no = #{seriesNo}
+	 	</if>
+	 </select>
+
+</mapper>

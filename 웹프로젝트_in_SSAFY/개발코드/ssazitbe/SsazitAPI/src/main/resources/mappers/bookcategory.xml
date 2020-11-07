@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.BookcategoryDAO">
+
+	<!-- 
+		private int 	bookNo;			/*PK FK 책 번호*/
+		private int 	category;		/*PK FK 카테고리 코드*/
+		
+		private String 	searchKey;			/*검색 키*/
+		private String 	searchValue;		/*검색 값*/
+		private String 	orderKey;			/*정렬 키*/
+		private String 	orderValue;			/*정렬 값*/
+		private int 	limitStart;			/*페이징 시작*/
+		private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertBookcategory">
+	 	insert into bookcategory(
+	 		book_no,
+	 		category
+	 		)
+	 	values (
+	 		#{bookNo},
+	 		#{category}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateBookcategory">
+	 	update
+	 		bookcategory
+	 	set
+			book_no = #{bookNo},
+	 		category = #{category}
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		category = #{category}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteBookcategory">
+	 	delete from
+	 		bookcategory
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		category = #{category}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectBookcategoryOne" parameterType="Bookcategory">
+	 	select
+	 		book_no as bookNo,
+	 		category as category
+	 	from
+	 		bookcategory
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 	and
+	 		category = #{category}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectBookcategoryList" parameterType="Bookcategory">
+	 	select
+	 		book_no as bookNo,
+	 		category as category
+	 	from
+	 		bookcategory
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="category > 0">
+	 		and category like CONCAT('%',#{category},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by category DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by category ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectBookcategoryCount" parameterType="Integer">
+	 	select
+	 		count(book_no)
+	 	from
+	 		bookcategory
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="category > 0">
+	 		and category like CONCAT('%',#{category},'%')
+	 	</if>
+	 </select>
+
+</mapper>

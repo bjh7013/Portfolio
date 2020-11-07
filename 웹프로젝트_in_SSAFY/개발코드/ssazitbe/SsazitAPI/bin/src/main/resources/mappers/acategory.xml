@@ -1,0 +1,210 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.AcategoryDAO">
+
+	<!-- 
+		private int 	acategoryNo;			/*PK AI 알고리즘 문제 코드*/
+		private String 	acategorySource;			/*NN 알고리즘 문제 사이트*/
+		private int 	acategoryNumber;			/*NN 알고리즘 문제 번호*/
+		private String 	title;						/*NN 알고리즘 문제명*/
+		private String 	link;						/*사이트 링크*/
+		private int 	userNo;						/*NN 입력한 사용자 식별자*/
+		
+		private String 	searchKey;					/*검색 키*/
+		private String 	searchValue;				/*검색 값*/
+		private String 	orderKey;					/*정렬 키*/
+		private String 	orderValue;					/*정렬 값*/
+		private int 	limitStart;					/*페이징 시작*/
+		private int 	limitEnd;					/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertAcategory" parameterType="Acategory">
+	 	insert into Acategory(
+	 		acategory_source,
+	 		acategory_number,
+	 		title,
+	 		link,
+	 		user_no
+	 		)
+	 	values (
+	 		#{acategorySource},
+	 		#{acategoryNumber},
+	 		#{title},
+	 		#{link},
+	 		#{userNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateAcategory" parameterType="Acategory">
+	 	update
+	 		Acategory
+	 	set
+	 		acategory_source = #{acategorySource},
+	 		acategory_number = #{acategoryNumber},
+	 		title = #{title},
+	 		link = #{link}
+	 		user_no = #{userNo},
+	 	where
+	 		1=1
+	 	and
+	 		acategory_no = #{acategoryNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteAcategory" parameterType="Acategory">
+	 	delete from
+	 		Acategory
+	 	where
+	 		1=1
+	 	and
+	 		acategory_no = #{acategoryNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectAcategoryOne" parameterType="Acategory" resultType="Acategory">
+	 	select
+	 		acategory_no as acategoryNo,
+	 		acategory_source as acategorySource,
+	 		acategory_number as acategoryNumber,
+	 		title as title,
+	 		link as link,
+	 		user_no as userNo
+	 	from
+	 		Acategory
+	 	where
+	 		1=1
+	 	and
+	 		acategory_no = #{acategoryNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectAcategoryList" parameterType="Acategory" resultType="Acategory">
+	 	select
+	 		acategory_no as acategoryNo,
+	 		acategory_source as acategorySource,
+	 		acategory_number as acategoryNumber,
+	 		title as title,
+	 		link as link,
+	 		user_no as userNo
+	 	from
+	 		Acategory
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="acategoryNo > 0">
+	 		and acategory_no = #{acategoryNo}
+	 	</if>
+	 	<if test="acategorySource != null and acategorySource != ''">
+	 		and acategory_source like CONCAT('%',#{acategorySource},'%')
+	 	</if>
+	 	<if test="acategoryNumber > 0">
+	 		and acategory_number = #{acategoryNumber}
+	 	</if>
+	 	<if test="title != null and title != ''">
+	 		and title like CONCAT('%',#{title},'%')
+	 	</if>
+	 	<if test="link != null and link != ''">
+	 		and link like CONCAT('%',#{link},'%')
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	order by acategory_source ASC
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'acategoryNo'">
+	 					, acategory_no DESC
+	 				</when>
+	 				<when test="orderKey == 'acategorySource'">
+	 					, acategory_source DESC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					, title DESC
+	 				</when>
+	 				<when test="orderKey == 'link'">
+	 					, link DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					, user_no DESC
+	 				</when>
+	 				<otherwise>
+	 					, acategory_number DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'acategoryNo'">
+	 					, acategory_no ASC
+	 				</when>
+	 				<when test="orderKey == 'acategorySource'">
+	 					, acategory_source ASC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					, title ASC
+	 				</when>
+	 				<when test="orderKey == 'link'">
+	 					, link ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					, user_no ASC
+	 				</when>
+	 				<otherwise>
+	 					, acategory_number ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page처리 위한 limit -->
+		<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectAcategoryCount" parameterType="Acategory" resultType="Integer">
+	 	select
+	 		count(acategory_no)
+	 	from
+	 		Acategory
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="acategoryNo > 0">
+	 		and acategory_no = #{acategoryNo}
+	 	</if>
+	 	<if test="acategorySource != null and acategorySource != ''">
+	 		and acategory_source like CONCAT('%',#{acategorySource},'%')
+	 	</if>
+	 	<if test="acategoryNumber > 0">
+	 		and acategory_number = #{acategoryNumber}
+	 	</if>
+	 	<if test="title != null and title != ''">
+	 		and title like CONCAT('%',#{title},'%')
+	 	</if>
+	 	<if test="link != null and link != ''">
+	 		and link like CONCAT('%',#{link},'%')
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 </select>
+	 
+	 <select id="selectSiteList" resultType="String">
+	 	select distinct acategory_source
+		from acategory;
+	 </select>
+	 
+	 <select id="getAcategoryNo" resultType="Integer">
+	 	select acategory_no acategoryNo
+	 	from acategory
+	 	where acategory_source = #{acategorySource}
+	 		AND acategory_number = #{acategoryNumber}
+	 	LIMIT 1;
+	 </select>
+</mapper>

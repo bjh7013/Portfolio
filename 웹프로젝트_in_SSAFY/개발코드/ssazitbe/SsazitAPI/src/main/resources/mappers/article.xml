@@ -1,0 +1,784 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.ArticleDAO">
+
+	<!-- 
+		private int 	articleNo;		/*PK AI 게시글 번호*/
+		private int 	userNo;				/*FK NN 작정자 번호*/
+		private int 	boardNo;			/*FK NN 게시판 번호*/
+		private String 	title;				/*NN 제목*/
+		private String 	content;			/*NN 내용*/
+		private String	writeDate;			/*NN default now() 작성수정일시*/
+		private String 	openScope;			/*NN 공개범위(public:공개 | protected:친구공개 | private:비공개)*/
+		private String 	thumbNail;			/*NN 썸네일이미지*/
+		private String 	articleType;		/*NN 게시글 구분(알고문제:A | 자유글:N)*/
+		private int 	sharable;			/*NN default 1 공유가능여부(boolean)*/
+		private int 	reviewRequest;		/*NN default 1 질문요청여부(boolean)*/
+		private int 	likeCount;			/*NN default 0 추천수(트리거 참조칼럼)*/
+		private int		acategoryNo;		/*알고리즘 카테고리 번호*/
+		private int		categoryNo;			/*카테고리 번호*/
+		
+		private String 	searchKey;			/*검색 키*/
+		private String 	searchValue;		/*검색 값*/
+		private String 	orderKey;			/*정렬 키*/
+		private String 	orderValue;			/*정렬 값*/
+		private int 	limitStart;			/*페이징 시작*/
+		private int 	limitEnd;			/*페이징 끝*/
+		
+		//joindata
+		private String 	nickName;			/*작성자 닉네임*/
+		private String 	userId;				/*작성자 아이디*/
+		
+		private int 	groupNo;			/*그룹번호(boardNo 식별자)*/
+		private int		seqNo;				/*그룹 내 번호(boardNo 식별자)*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertArticle" parameterType="Article">
+	 	insert into article(
+	 		user_no,
+	 		board_no,
+	 		title,
+	 		content,
+	 		write_date,
+	 		open_scope,
+	 		thumb_nail,
+	 		article_type,
+	 		sharable,
+	 		review_request,
+	 		<if test='articleType.equals("A")'>
+	 		acategory_no
+	 		</if>
+	 		<if test='articleType.equals("N")'>
+	 		category_no
+	 		</if>
+	 		<if test='reference > 0'>
+	 		,reference
+	 		</if>
+	 		)
+	 	values (
+	 		#{userNo},
+	 		#{boardNo},
+	 		#{title},
+	 		#{content},
+	 		now(),
+	 		#{openScope},
+	 		<if test="thumbNail == null or thumbNail == ''">
+	 		'img/default.png',
+	 		</if>
+	 		<if test="thumbNail != null and thumbNail != ''">
+	 		#{thumbNail},	 		
+	 		</if>
+	 		#{articleType},
+	 		#{sharable},
+	 		#{reviewRequest},
+	 		<if test='articleType.equals("A")'>
+	 		#{acategoryNo}
+	 		</if>
+	 		<if test='articleType.equals("N")'>
+	 		#{categoryNo}
+	 		</if>
+	 		<if test='reference > 0'>
+	 		,#{reference}
+	 		</if>
+	 		)
+	 	
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateArticle" parameterType="Article">
+	 	update
+	 		article
+	 	set
+	 		user_no = #{userNo},
+	 		board_no = #{boardNo},
+	 		title = #{title},
+	 		content = #{content},
+	 		update_date = now(),
+	 		open_scope = #{openScope},
+	 		thumb_nail = #{thumbNail},
+	 		article_type = #{articleType},
+	 		sharable = #{sharable},
+	 		review_request = #{reviewRequest},
+	 		<if test='articleType.equals("A")'>
+	 		acategory_no = #{acategoryNo}
+	 		</if>
+	 		<if test='articleType.equals("N")'>
+	 		category_no = #{categoryNo}
+	 		</if>
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteArticle" parameterType="Article">
+	 	delete from
+	 		article
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectArticleOne" parameterType="Article" resultType="Article">
+	 	select 
+			art.article_no as articleNo,
+			art.user_no as userNo,
+			board_no as boardNo,
+			art.title as title,
+			content as content,
+			write_date as writeDate,
+			open_scope as openScope,
+			thumb_nail as thumbNail,
+			article_type as articleType,
+			sharable as sharable,
+			review_request as reviewRequest,
+			like_count as likeCount,
+			art.acategory_no as acategoryNo,
+			art.category_no as categoryNo,
+			acategory_source as acategorySource,
+			acategory_number as acategoryNumber,
+			acategory.title as acategoryTitle,
+			link,
+			acategory.user_no as acategoryUserNo,
+			category_name as categoryName,
+			user_id as userId,
+            user_level as userLevel,
+            nick_name as nickName,
+            profile_img as profileImg,
+            like_date as likeDate,
+            favorite_date as favoriteDate,
+            art.reference as reference
+		from			
+			(select * from article where article_no = #{articleNo}) art natural join user
+			left outer join
+			articlelike
+			on art.article_no = articlelike.article_no and articlelike.user_no = #{loginUserNo}
+			left outer join
+            articlefavorite
+            on art.article_no = articlefavorite.article_no and articlefavorite.user_no = #{loginUserNo}
+			left outer join
+			category
+			on art.category_no = category.category_no
+			left outer join
+			acategory
+			on art.acategory_no = acategory.acategory_no;
+	 </select>
+	 
+	 <select id="selectArticleListByUser" resultType="Article">
+	 	select 
+	 		article_no as articleNo,
+			user_no as userNo,
+			board_no as boardNo,
+			title as title,
+			content as content,
+			write_date as writeDate,
+			open_scope as openScope,
+			thumb_nail as thumbNail,
+			article_type as articleType,
+			sharable as sharable,
+			review_request as reviewRequest,
+			like_count as likeCount,
+			reference as reference
+	 	from article 
+	 	where user_no = #{userNo}
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no DESC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title DESC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content DESC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date DESC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope DESC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail DESC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type DESC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable DESC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request DESC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count DESC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no ASC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title ASC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content ASC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date ASC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope ASC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail ASC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type ASC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable ASC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request ASC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count ASC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 <!-- 
+	 검색(List) 
+	 -->
+	 <select id="selectArticleList" parameterType="Article" resultType="Article">
+	 	select 
+            res.article_no as articleNo,
+            res.user_no as userNo,
+            board_no as boardNo,
+            res.title as title,
+            content as content,
+            write_date as writeDate,
+            open_scope as openScope,
+            thumb_nail as thumbNail,
+            article_type as articleType,
+            sharable as sharable,
+            review_request as reviewRequest,
+            like_count as likeCount,
+            res.acategory_no as acategoryNo,
+            res.category_no as categoryNo,
+            acategory_source as acategorySource,
+            acategory_number as acategoryNumber,
+            acategory.title as acategoryTitle,
+            link,
+            acategory.user_no as acategoryUserNo,
+            category_name as categoryName,
+            res.reference as reference,
+            user_id as userId,
+            nick_name as nickName,
+            user_level as userLevel,
+            profile_img as profileImg,
+            case 
+				when
+				<foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+                  res.title LIKE CONCAT('%',#{word},'%')
+				</foreach> 
+				then 1
+	            when
+	            <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+                  category_name LIKE CONCAT('%',#{word},'%')
+                  or acategory_source LIKE CONCAT('%',#{word},'%')
+                  or acategory.title LIKE CONCAT('%',#{word},'%')
+				</foreach>
+	            then 4
+	            else 3
+            end as p
+        from
+            (
+                (
+                    select *
+                    from
+                    (
+                        (
+                            select 
+                                article_no
+                            from 
+                                (
+                                    (select * 
+                                    from article
+                                    where 1=1
+                                    <!-- 게시판 내 검색일 경우 -->
+                                    <if test="userNo > 0">
+                                    	and user_no = #{userNo}
+                                    </if>
+                                     <if test="groupNo > 0">
+                                         and board_no in (select board_no from myboard where group_no = #{groupNo}
+                                         <if test="seqNo > 0">
+                                             and seq_no = #{seqNo}
+                                         </if>
+                                         )
+                                     </if>
+                                     <if test="userNo > 0">
+                                         and user_no = #{userNo}
+                                     </if>
+                                    ) 
+                                    art
+                                    left outer join
+                                    category
+                                    on art.category_no = category.category_no
+                                )
+                                left outer join
+                                acategory
+                                on art.acategory_no = acategory.acategory_no
+                            where 
+                                <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+	                                art.title LIKE CONCAT('%',#{word},'%')
+	                                or category_name LIKE CONCAT('%',#{word},'%')
+	                                or acategory_source LIKE CONCAT('%',#{word},'%')
+	                                or acategory.title LIKE CONCAT('%',#{word},'%')
+								</foreach>
+                        )
+                        UNION
+                        (select article_no
+                            from
+                            (
+	                            (
+	                            select * 
+	                            from tag
+	                           	 where
+	                            <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+	 	                           tag_name LIKE CONCAT('%',#{word},'%')
+								</foreach>
+								)
+								UNION
+								(
+								select * 
+								from tag
+								where group_no IN
+									(select distinct group_no
+									from tag
+		                           	 where 
+		                            <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+		 	                           tag_name = #{word}
+									</foreach>
+										or tag_name = #{searchValue}
+									)
+								)
+							)
+                            tags
+                            INNER JOIN
+                            arttag
+                            ON arttag.tag_no = tags.tag_no
+                            group by article_no
+                        )
+                        UNION
+                        (select article_no
+                        from tmptag
+                        where 
+                        <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+ 	                       tmptag_name LIKE CONCAT('%',#{word},'%')
+						</foreach>
+                        )
+                    ) artno NATURAL JOIN article
+                ) res left outer join category 
+                    on res.category_no = category.category_no
+            ) left outer join acategory on res.acategory_no = acategory.acategory_no
+            inner join user on res.user_no = user.user_no
+            
+            where 1=1
+            <if test="groupNo > 0">
+                 and board_no in (select board_no from myboard where group_no = #{groupNo}
+                 <if test="seqNo > 0">
+                     and seq_no = #{seqNo}
+                 </if>
+                 )
+             </if>
+             <if test="userNo > 0">
+             	and res.user_no = #{userNo}
+             </if>
+		 <!-- 검색조건 -->
+	 	<choose>
+	 		<when test="openScope == 'public'">
+	 			and open_scope = 'public'
+	 		</when>
+	 		<when test="openScope == 'protected'">
+	 			and (open_scope = 'public' OR open_scope = 'protected') 
+	 		</when>
+	 	</choose>	 		
+	 	<!-- 
+	 	게시글 타입
+	 	 -->
+	 	<if test="articleType != null and articleType != ''">
+	 		and article_type = #{articleType}
+	 	</if>
+	 	<!-- 리뷰 리퀘스트 -->
+	 	<if test="reviewRequest > -1">
+	 		and review_request = #{reviewRequest}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == null or orderValue == ''">
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no DESC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title DESC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content DESC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date DESC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope DESC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail DESC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type DESC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable DESC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request DESC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count DESC
+	 				</when>
+	 				<otherwise>
+	 					order by p
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no ASC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title ASC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content ASC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date ASC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope ASC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail ASC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type ASC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable ASC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request ASC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count ASC
+	 				</when>
+	 				<otherwise>
+	 					order by p
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectArticleCount" parameterType="Blog" resultType="Integer">
+	 	select 
+            count(*)
+        from
+            (
+                (
+                    select *
+                    from
+                    (
+                        (
+                            select 
+                                article_no
+                            from 
+                                (
+                                    (select * 
+                                    from article
+                                    where 1=1
+                                    <!-- 게시판 내 검색일 경우 -->
+                                    <if test="userNo > 0">
+                                    	and user_no = #{userNo}
+                                    </if>
+                                     <if test="groupNo > 0">
+                                         and board_no in (select board_no from myboard where group_no = #{groupNo}
+                                         <if test="seqNo > 0">
+                                             and seq_no = #{seqNo}
+                                         </if>
+                                         )
+                                     </if>
+                                     <if test="userNo > 0">
+                                         and user_no = #{userNo}
+                                     </if>
+                                    ) 
+                                    art
+                                    left outer join
+                                    category
+                                    on art.category_no = category.category_no
+                                )
+                                left outer join
+                                acategory
+                                on art.acategory_no = acategory.acategory_no
+                            where 
+                                <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+	                                art.title LIKE CONCAT('%',#{word},'%')
+	                                or category_name LIKE CONCAT('%',#{word},'%')
+	                                or acategory_source LIKE CONCAT('%',#{word},'%')
+	                                or acategory.title LIKE CONCAT('%',#{word},'%')
+								</foreach>
+                        )
+                        UNION
+                        (select article_no
+                            from
+                            (
+	                            (
+	                            select * 
+	                            from tag
+	                           	 where 
+	                            <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+	 	                           tag_name LIKE CONCAT('%',#{word},'%')
+								</foreach>
+								)
+								UNION
+								(
+								select * 
+								from tag
+								where group_no IN
+									(select distinct group_no
+									from tag
+		                           	 where 
+		                            <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+		 	                           tag_name LIKE CONCAT('%',#{word},'%')
+									</foreach>
+									)
+								)
+							)
+                            tags
+                            INNER JOIN
+                            arttag
+                            ON arttag.tag_no = tags.tag_no
+                            group by article_no
+                        )
+                        UNION
+                        (select article_no
+                        from tmptag
+                        where 
+                        <foreach collection="searchWords" item="word" open="(" close=")" separator="or">
+ 	                       tmptag_name LIKE CONCAT('%',#{word},'%')
+						</foreach>
+                        )
+                    ) artno NATURAL JOIN article
+                ) res left outer join category 
+                    on res.category_no = category.category_no
+            ) left outer join acategory on res.acategory_no = acategory.acategory_no
+            inner join user on res.user_no = user.user_no
+            
+            where 1=1
+            <if test="groupNo > 0">
+                 and board_no in (select board_no from myboard where group_no = #{groupNo}
+                 <if test="seqNo > 0">
+                     and seq_no = #{seqNo}
+                 </if>
+                 )
+             </if>
+             <if test="userNo > 0">
+             	and res.user_no = #{userNo}
+             </if>
+		 <!-- 검색조건 -->
+	 	<choose>
+	 		<when test="openScope == 'public'">
+	 			and open_scope = 'public'
+	 		</when>
+	 		<when test="openScope == 'protected'">
+	 			and (open_scope = 'public' OR open_scope = 'protected') 
+	 		</when>
+	 	</choose>	 		
+	 	<!-- 
+	 	게시글 타입
+	 	 -->
+	 	<if test="articleType != null and articleType != ''">
+	 		and article_type = #{articleType}
+	 	</if>
+	 	<!-- 리뷰 리퀘스트 -->
+	 	<if test="reviewRequest > -1">
+	 		and review_request = #{reviewRequest}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == null or orderValue == ''">
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no DESC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title DESC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content DESC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date DESC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope DESC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail DESC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type DESC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable DESC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request DESC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count DESC
+	 				</when>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by article.user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'boardNo'">
+	 					order by board_no ASC
+	 				</when>
+	 				<when test="orderKey == 'title'">
+	 					order by title ASC
+	 				</when>
+	 				<when test="orderKey == 'content'">
+	 					order by content ASC
+	 				</when>
+	 				<when test="orderKey == 'writeDate'">
+	 					order by write_date ASC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope ASC
+	 				</when>
+	 				<when test="orderKey == 'thumbNail'">
+	 					order by thumb_nail ASC
+	 				</when>
+	 				<when test="orderKey == 'articleType'">
+	 					order by article_type ASC
+	 				</when>
+	 				<when test="orderKey == 'sharable'">
+	 					order by sharable ASC
+	 				</when>
+	 				<when test="orderKey == 'reviewRequest'">
+	 					order by review_request ASC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count ASC
+	 				</when>
+	 		
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 <select id="validateBoard" resultType="MyBoard">
+	 	select board_no boardNo, board_type boardType
+		from blog INNER JOIN myboard ON blog.blog_no = myboard.blog_no
+		where user_no = #{userNo} AND board_no = #{boardNo};
+	 </select>
+	 <select id="validateArticle" resultType="Article">
+	 	select article_no articleNo
+	 	from article
+	 	where user_no = #{userNo} AND article_no = #{articleNo}
+	 </select>
+	 <select id="getArticleNo" resultType="Integer">
+	 	select article_no articleNo
+	 	from article 
+	 	where user_no = #{userNo}
+	 	order by write_date desc
+	 	LIMIT 1;
+	 </select>
+	 <select id="getReferenceArticle" resultType="Article">
+	 	select 
+			article_no as articleNo,
+			user_id	as userId
+         from article natural join user
+         where  article_no = #{articleNo}
+	 </select>
+	
+</mapper>

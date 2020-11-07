@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.BookDAO">
+
+	<!-- 
+	private int 	bookNo;			/*PK AI 책번호*/
+	private int		writer;				/*FK NN 작성자 번호*/
+	private String 	bookTitle;			/*NN 책 제목*/
+	private int		version;			/*NN default 1 버전*/
+	private String  writeDate;			/*NN default now() 작성 일시*/
+	private String  updateDate;			/*수정 일시*/
+	private String	openScope;			/*NN 공개범위(공개(public)/친구공개(protected)/비공개(private)*/
+	private String 	coverFront;			/*NN 표지(앞)*/
+	private String 	coverMiddle;		/*NN 표지(중)*/
+	private String 	coverBack;			/*NN 표지(뒤)*/
+	private String 	likeCount;			/*NN default 0 추천수(트리거 참조칼럼)*/
+	
+	private String 	searchKey;			/*검색 키*/
+	private String 	searchValue;		/*검색 값*/
+	private String 	orderKey;			/*정렬 키*/
+	private String 	orderValue;			/*정렬 값*/
+	private int 	limitStart;			/*페이징 시작*/
+	private int 	limitEnd;			/*페이징 끝*/
+	
+	//join data
+	private int 	seriesNo;			/*시리즈 번호*/
+	private String 	seriesName;			/*시리즈 명*/
+	private String 	seriesDesc;			/*시리즈 설명*/
+	private int 	categoryNo;			/*카테고리 번호*/
+	private String 	categoryName;		/*카테고리 명*/
+	-->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertBook" parameterType="Book">
+	 	insert into Book(
+	 		writer,
+	 		book_title,
+	 		version,
+	 		write_date,
+	 		open_scope,
+	 		cover_front,
+	 		cover_middle,
+	 		cover_back
+	 		)
+	 	values (
+	 		#{writer},
+	 		#{bookTitle},
+	 		#{version},
+	 		now(),
+	 		#{openScope},
+	 		#{coverFront},
+	 		#{coverMiddle},
+	 		#{coverBack}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateBook" parameterType="Book">
+	 	update
+	 		Book
+	 	set
+	 		book_title = #{bookTitle},
+	 		version = #{version},	
+		 	update_date = now(),
+		 	open_scope = #{openScope},
+	 		cover_front = #{coverFront},
+	 		cover_middle = #{coverMiddle},
+	 		cover_back = #{coverBack}
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteBook" parameterType="Book">
+	 	delete from
+	 		Book
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectBookOne" parameterType="Book"  resultType="Book">
+	 	select
+	 		book_no as bookNo,
+	 		writer as writer,
+	 		book_title as bookTitle,
+	 		version as version,
+	 		write_date as writeDate,
+	 		update_date as updateDate,
+	 		open_scope as openScope,
+	 		cover_front as coverFront,
+	 		cover_middle as coverMiddle,
+	 		cover_back as coverBack,
+	 		like_count as likeCount
+	 	from
+	 		Book
+	 	where
+	 		1=1
+	 	and
+	 		book_no = #{bookNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectBookList" parameterType="Book" resultType="Book">
+	 	select
+	 		book_no as bookNo,
+	 		writer as writer,
+	 		book_title as bookTitle,
+	 		version as version,
+	 		write_date as writeDate,
+	 		update_date as updateDate,
+	 		open_scope as openScope,
+	 		cover_front as coverFront,
+	 		cover_middle as coverMiddle,
+	 		cover_back as coverBack,
+	 		like_count as likeCount
+	 	from
+	 		Book
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="writer > 0">
+	 		and writer = #{writer}
+	 	</if>
+	 	<if test="bookTitle != null and bookTitle != ''">
+	 		and book_title like CONCAT('%',#{bookTitle},'%')
+	 	</if>
+	 	<if test="version > 0">
+	 		and version = #{version}
+	 	</if>
+	 	<if test="writeDate != null and writeDate != ''">
+	 		and write_date like CONCAT('%',#{writeDate},'%')
+	 	</if>
+	 	<if test="updateDate != null and updateDate != ''">
+	 		and update_date like CONCAT('%',#{updateDate},'%')
+	 	</if>
+	 	<if test="openScope != null and openScope != ''">
+	 		and open_scope like CONCAT('%',#{openScope},'%')
+	 	</if>
+	 	<if test="coverFront != null and coverFront != ''">
+	 		and cover_front like CONCAT('%',#{coverFront},'%')
+	 	</if>
+	 	<if test="coverMiddle != null and coverMiddle != ''">
+	 		and cover_middle like CONCAT('%',#{coverMiddle},'%')
+	 	</if>
+	 	<if test="coverBack != null and coverBack != ''">
+	 		and cover_back like CONCAT('%',#{coverBack},'%')
+	 	</if>
+	 	<if test="likeCount > 0">
+	 		and like_count = #{likeCount}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<when test="orderKey == 'writer'">
+	 					order by writer DESC
+	 				</when>
+	 				<when test="orderKey == 'bookTitle'">
+	 					order by book_title DESC
+	 				</when>
+	 				<when test="orderKey == 'version'">
+	 					order by version DESC
+	 				</when>
+	 				<when test="orderKey == 'updateDate'">
+	 					order by update_date DESC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope DESC
+	 				</when>
+	 				<when test="orderKey == 'coverFront'">
+	 					order by cover_front DESC
+	 				</when>
+	 				<when test="orderKey == 'coverMiddle'">
+	 					order by cover_middle DESC
+	 				</when>
+	 				<when test="orderKey == 'coverBack'">
+	 					order by cover_back DESC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count DESC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<when test="orderKey == 'writer'">
+	 					order by writer ASC
+	 				</when>
+	 				<when test="orderKey == 'bookTitle'">
+	 					order by book_title ASC
+	 				</when>
+	 				<when test="orderKey == 'version'">
+	 					order by version ASC
+	 				</when>
+	 				<when test="orderKey == 'updateDate'">
+	 					order by update_date ASC
+	 				</when>
+	 				<when test="orderKey == 'openScope'">
+	 					order by open_scope ASC
+	 				</when>
+	 				<when test="orderKey == 'coverFront'">
+	 					order by cover_front ASC
+	 				</when>
+	 				<when test="orderKey == 'coverMiddle'">
+	 					order by cover_middle ASC
+	 				</when>
+	 				<when test="orderKey == 'coverBack'">
+	 					order by cover_back ASC
+	 				</when>
+	 				<when test="orderKey == 'likeCount'">
+	 					order by like_count ASC
+	 				</when>
+	 				<otherwise>
+	 					order by write_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+		<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectBookCount" parameterType="Book" resultType="Integer">
+	 	select
+	 		count(book_no)
+	 	from
+	 		Book
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="writer > 0">
+	 		and writer = #{writer}
+	 	</if>
+	 	<if test="bookTitle != null and bookTitle != ''">
+	 		and book_title like CONCAT('%',#{bookTitle},'%')
+	 	</if>
+	 	<if test="version > 0">
+	 		and version = #{version}
+	 	</if>
+	 	<if test="writeDate != null and writeDate != ''">
+	 		and write_date like CONCAT('%',#{writeDate},'%')
+	 	</if>
+	 	<if test="updateDate != null and updateDate != ''">
+	 		and update_date like CONCAT('%',#{updateDate},'%')
+	 	</if>
+	 	<if test="coverFront != null and coverFront != ''">
+	 		and cover_front like CONCAT('%',#{coverFront},'%')
+	 	</if>
+	 	<if test="coverMiddle != null and coverMiddle != ''">
+	 		and cover_middle like CONCAT('%',#{coverMiddle},'%')
+	 	</if>
+	 	<if test="coverBack != null and coverBack != ''">
+	 		and cover_back like CONCAT('%',#{coverBack},'%')
+	 	</if>
+	 	<if test="likeCount > 0">
+	 		and like_count = #{likeCount}
+	 	</if>
+	 </select>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.NotiDAO">
+	<select id="selectMyNoti" resultType="Noti"><!-- 다른 회원 정보 조회 -->
+		select 
+			noti_no notiNo,
+			receiver,
+			noti_type as notiType,
+			noti_date as notiDate,
+			sender,
+			noti.article_no as articleNo,
+			book.book_no as bookNo,
+			book.book_title as bookTitle,
+            article.title as articleTitle,
+            user.nick_name as nickName,
+            user.user_id as userId,
+            user.profile_img as profileImg
+		from
+			noti 
+			inner join user on noti.sender = user.user_no
+			left outer join article on noti.article_no = article.article_no
+			left outer join book on noti.book_no = book.book_no
+		where
+			1=1
+			<if test="receiver > 0">
+				and receiver = #{receiver}
+			</if>
+	</select>
+
+	<delete id="deleteNoti">
+		delete from noti
+		where noti_no = #{notiNo}
+	</delete>
+	
+	<insert id="insertNoti">
+		insert into noti( 
+		receiver, 
+		noti_type, 
+		noti_date, 
+		sender
+		<if test="articleNo > 0">
+		,article_no
+		</if>
+		<if test="bookNo > 0">
+		,book_no
+		</if>
+		)
+		values(
+		#{receiver},
+		#{notiType},
+		now(),
+		#{sender}
+		<if test="articleNo > 0">
+		,#{articleNo}
+		</if>
+		<if test="bookNo > 0">
+		,#{bookNo}
+		</if>
+		)
+	</insert>
+</mapper>

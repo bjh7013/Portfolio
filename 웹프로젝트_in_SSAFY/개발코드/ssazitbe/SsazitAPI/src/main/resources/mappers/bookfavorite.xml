@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.BookfavoriteDAO">
+
+	<!-- 
+	private int 	favoriteNo;	/*PK AI 즐겨찾기 번호*/
+	private int 	userNo;			/*FK NN 사용자 번호*/
+	private int 	bookNo;			/*FK NN 책 번호*/
+	private String 	favoriteDate;	/*NN default now() 즐겨찾기 추가 일시*/
+	
+	private String 	searchKey;		/*검색 키*/
+	private String 	searchValue;	/*검색 값*/
+	private String 	orderKey;		/*정렬 키*/
+	private String 	orderValue;		/*정렬 값*/
+	private int 	limitStart;		/*페이징 시작*/
+	private int 	limitEnd;		/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertBookfavorite" parameterType="Bookfavorite">
+	 	insert into bookfavorite(
+	 		favorite_no,
+	 		user_no,
+	 		book_no,
+	 		favorite_date
+	 		)
+	 	values (
+	 		#{favoriteNo},
+	 		#{userNo},
+	 		#{bookNo},
+	 		now()
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateBookfavorite" parameterType="Bookfavorite">
+	 	update
+	 		bookfavorite
+	 	set
+	 		user_no = #{userNo},
+	 		book_no = #{bookNo},
+	 		favorite_date = #{favoriteDate}
+	 	where
+	 		1=1
+	 	and
+	 		favorite_no	= #{favoriteNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteBookfavorite" parameterType="Bookfavorite">
+	 	delete from
+	 		bookfavorite
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 	and
+	 		book_no = #{bookNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectBookfavoriteOne" parameterType="Bookfavorite" resultType="Bookfavorite">
+	 	select
+	 		favorite_no as favoriteNo,
+	 		user_no as userNo,
+	 		book_no as bookNo,
+	 		favorite_date as favoriteDate
+	 	from
+	 		bookfavorite
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 	and
+	 		book_no = #{bookNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectBookfavoriteList" parameterType="Bookfavorite" resultType="Bookfavorite">
+	 	select
+	 		favorite_no as favoriteNo,
+	 		user_no as userNo,
+	 		book_no as bookNo,
+	 		favorite_date as favoriteDate
+	 	from
+	 		bookfavorite
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="favoriteNo > 0">
+	 		and favorite_no = #{favoriteNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="favoriteDate != null and favoriteDate != ''">
+	 		favorite_date like CONCAT('%',#{favoriteDate},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'favoriteNo'">
+	 					order by favorite_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no DESC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by favorite_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'favoriteNo'">
+	 					order by favorite_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no ASC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by favorite_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectBookfavoriteCount" parameterType="Bookfavorite" resultType="Integer">
+	 	select
+	 		count(favorite_no)
+	 	from
+	 		bookfavorite
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="favoriteNo > 0">
+	 		and favorite_no = #{favoriteNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="favoriteDate != null and favoriteDate != ''">
+	 		favorite_date like CONCAT('%',#{favoriteDate},'%')
+	 	</if>
+	 </select>
+
+</mapper>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.TmptagDAO">
+
+	<!-- 
+		private int 	tmptagNo;	/*PK AI 임시태그 번호*/
+		private int 	articleNo;		/*FK 글 번호*/
+		private int 	bookNo;			/*FK 책 번호*/
+		private String 	tmptagName;		/*NN 임시 태그명*/
+		
+		private String 	searchKey;		/*검색 키*/
+		private String 	searchValue;	/*검색 값*/
+		private String 	orderKey;		/*정렬 키*/
+		private String 	orderValue;		/*정렬 값*/
+		private int 	limitStart;		/*페이징 시작*/
+		private int 	limitEnd;		/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertTmptag" parameterType="Tmptag">
+	 	<if test="articleNo > 0">
+	 	insert into tmptag(
+	 		article_no,
+	 		tmptag_name
+	 		)
+	 	values (
+	 		#{articleNo},
+	 		#{tmptagName}
+	 		)
+	 	</if>
+	 	<if test="bookNo > 0">
+	 	insert into tmptag(
+	 		book_no,
+	 		tmptag_name
+	 		)
+	 	values (
+	 		#{bookNo},
+	 		#{tmptagName}
+	 		)
+	 	</if>
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateTmptag" parameterType="Tmptag">
+	 	update
+	 		tmptag
+	 	set
+	 		article_no = #{articleNo},
+	 		book_no = #{bookNo},
+	 		tmptag_name = #{tmptagName}
+	 	where
+	 		1=1
+	 	and
+	 		tmptag_no = #{tmptagNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteTmptag" parameterType="Tmptag">
+	 	delete from
+	 		tmptag
+	 	where
+	 		1=1
+	 	<if test="tmptagNo > 0">
+	 	and
+	 		tmptag_no = #{tmptagNo}
+	 	</if>
+	 	and
+	 		book_no = #{bookNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectTmptagOne" parameterType="Tmptag" resultType="Tmptag">
+	 	select
+	 		tmptag_no as tmptagNo,
+	 		article_no as articleNo,
+	 		book_no as bookNo,
+	 		tmptag_name as tmptagName
+	 	from
+	 		tmptag
+	 	where
+	 		1=1
+	 	and
+	 		tmptag_no = #{tmptagNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectTmptagList" resultType="Tmptag">
+	 	select
+	 		tmptag_no as tmptagNo,
+	 		article_no as articleNo,
+	 		book_no as bookNo,
+	 		tmptag_name as tmptagName
+	 	from
+	 		tmptag
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="tmptagNo > 0">
+	 		and tmptag_no = #{tmptagNo} 
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="tmptagName != null and tmptagName != ''">
+	 		and tmptag_name like CONCAT('%',#{tmptagName},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'tmptagNo'">
+	 					order by tmptag_no DESC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by tmptag_name DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'tmptagNo'">
+	 					order by tmptag_no ASC
+	 				</when>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'bookNo'">
+	 					order by book_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by tmptag_name ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectTmptagCount" parameterType="Tmptag" resultType="Integer">
+	 	select
+	 		count(tmptag_no)
+	 	from
+	 		tmptag
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="tmptagNo > 0">
+	 		and tmptag_no = #{tmptagNo} 
+	 	</if>
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="bookNo > 0">
+	 		and book_no = #{bookNo}
+	 	</if>
+	 	<if test="tmptagName != null and tmptagName != ''">
+	 		and tmptag_name like CONCAT('%',#{tmptagName},'%')
+	 	</if>
+	 </select>
+
+</mapper>

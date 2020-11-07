@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.CommentlikeDAO">
+
+	<!-- 
+		private int 	commentNo;		/*PK FK 댓글 번호*/
+		private int 	userNo;			/*PK FK 댓글 추천자*/
+		private String 	likeDate;			/*NN default now() 좋아요 일시*/
+		
+		private String 	searchKey;			/*검색 키*/
+		private String 	searchValue;		/*검색 값*/
+		private String 	orderKey;			/*정렬 키*/
+		private String 	orderValue;			/*정렬 값*/
+		private int 	limitStart;			/*페이징 시작*/
+		private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertCommentlike" parameterType="Commentlike">
+	 	insert into commentlike(
+	 		comment_no,
+	 		user_no,
+	 		like_date
+	 		)
+	 	values (
+	 		#{commentNo},
+	 		#{userNo},
+	 		now()
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateCommentlike" parameterType="Commentlike">
+	 	update
+	 		commentlike
+	 	set
+	 		comment_no = #{commentNo},
+	 		user_no = #{userNo},
+	 		like_date = now()
+	 	where
+	 		1=1
+	 	and
+	 		comment_no	=	#{commentNo}
+	 	and
+	 		user_no = #{userNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteCommentlike" parameterType="Commentlike">
+	 	delete from
+	 		commentlike
+	 	where
+	 		1=1
+	 	and
+	 		comment_no	=	#{commentNo}
+	 	and
+	 		user_no = #{userNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectCommentlikeOne" parameterType="Commentlike" resultType="Commentlike">
+	 	select
+	 		comment_no as commentNo,
+	 		user_no as userNo,
+	 		like_date as likeDate
+	 	from
+	 		commentlike
+	 	where
+	 		1=1
+	 	and
+	 		comment_no	=	#{commentNo}
+	 	and
+	 		user_no = #{userNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectCommentlikeList" parameterType="Commentlike" resultType="Commentlike">
+	 	select
+	 		comment_no as commentNo,
+	 		user_no as userNo,
+	 		like_date as likeDate
+	 	from
+	 		commentlike
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="commentNo > 0">
+	 		and comment_no = #{commentNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="likeDate != null and likeDate != ''">
+	 		and like_date like CONCAT('%',#{likeDate},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'commentNo'">
+	 					order by comment_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no DESC	 				
+	 				</when>
+	 				<otherwise>
+	 					order by like_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'commentNo'">
+	 					order by comment_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no ASC	 				
+	 				</when>
+	 				<otherwise>
+	 					order by like_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectCommentlikeCount" parameterType="Commentlike" resultType="Integer">
+	 	select
+	 		count(comment_no)
+	 	from
+	 		commentlike
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="commentNo > 0">
+	 		and comment_no = #{commentNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="likeDate != null and likeDate != ''">
+	 		and like_date like CONCAT('%',#{likeDate},'%')
+	 	</if>
+	 </select>
+
+</mapper>

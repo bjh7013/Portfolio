@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="com.ssazit.dao.SeriesDAO">
+
+	<!-- 
+	private int 	seriesNo;		/*PK AI 시리즈 번호*/
+	private String 	seriesName;			/*NN 시리즈 명*/
+	private String 	seriesDesc;			/*시리즈 설명*/
+	
+	private String 	orderKey;			/*정렬 키*/
+	private String 	orderValue;			/*정렬 값*/
+	private int 	limitStart;			/*페이징 시작*/
+	private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertSeries" parameterType="Series">
+	 	insert into Series(
+	 		series_name,
+	 		series_desc
+	 		)
+	 	values (
+	 		#{seriesName},
+	 		#{seriesDesc}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateSeries" parameterType="Series">
+	 	update
+	 		Series
+	 	set
+	 		series_name = #{seriesName},
+	 		series_desc = #{seriesDesc}
+	 	where
+	 		1=1
+	 	and
+	 		series_no = #{seriesNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteSeries" parameterType="Series">
+	 	delete from
+	 		Series
+	 	where
+	 		1=1
+	 	and
+	 		series_no = #{seriesNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectSeriesOne" parameterType="Series" resultType="Series">
+	 	select
+	 		series_no as seriesNo,
+	 		series_name as seriesName,
+	 		series_desc as seriesDesc
+	 	from
+	 		Series
+	 	where
+	 		1=1
+	 	and
+	 		series_no = #{seriesNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectSeriesList" parameterType="Series" resultType="Series">
+	 	select
+	 		series_no as seriesNo,
+	 		series_name as seriesName,
+	 		series_desc as seriesDesc
+	 	from
+	 		Series
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="seriesNo > 0">
+	 		and series_no = #{seriesNo}
+	 	</if>
+	 	<if test="seriesName != null and seriesName != ''">
+	 		and series_name like CONCAT('%',#{seriesName},'%')
+	 	</if>
+	 	<if test="seriesDesc != null and seriesDesc != ''">
+	 		and series_desc like CONCAT('%',#{seriesDesc},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'seriesName'">
+	 					order by series_name DESC
+	 				</when>
+	 				<when test="orderKey == 'seriesDesc'">
+	 					order by series_desc DESC
+	 				</when>
+	 				<otherwise>
+	 					order by series_no DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'seriesName'">
+	 					order by series_name ASC
+	 				</when>
+	 				<when test="orderKey == 'seriesDesc'">
+	 					order by series_desc ASC
+	 				</when>
+	 				<otherwise>
+	 					order by series_no ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page 처리 -->
+	 	<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectSeriesCount" parameterType="Series" resultType="Integer">
+	 	select
+	 		count(series_no)
+	 	from
+	 		Series
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="seriesNo > 0">
+	 		and series_no = #{seriesNo}
+	 	</if>
+	 	<if test="seriesName != null and seriesName != ''">
+	 		and series_name like CONCAT('%',#{seriesName},'%')
+	 	</if>
+	 	<if test="seriesDesc != null and seriesDesc != ''">
+	 		and series_desc like CONCAT('%',#{seriesDesc},'%')
+	 	</if>
+	 </select>
+
+</mapper>

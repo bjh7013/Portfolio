@@ -1,0 +1,152 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.ArticlelikeDAO">
+
+	<!-- 
+		private int 	articleNo;		/*PK FK 게시글 번호*/
+		private int 	userNo;			/*PK FK 게시글 추천자*/
+		private String 	likeDate;			/*NN default now() 좋아요 일시*/
+		
+		private String 	searchKey;			/*검색 키*/
+		private String 	searchValue;		/*검색 값*/
+		private String 	orderKey;			/*정렬 키*/
+		private String 	orderValue;			/*정렬 값*/
+		private int 	limitStart;			/*페이징 시작*/
+		private int 	limitEnd;			/*페이징 끝*/
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="insertArticlelike" parameterType="Articlelike">
+	 	insert into articlelike(
+	 		article_no,
+	 		user_no,
+	 		like_date
+	 		)
+	 	values (
+	 		#{articleNo},
+	 		#{userNo},
+	 		now()
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateArticlelike" parameterType="Articlelike">
+	 	update
+	 		articlelike
+	 	set
+	 		article_no = #{articleNo},
+	 		user_no = #{userNo},
+	 		like_date = now()
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 	and
+	 		user_no = #{userNo}
+	 </update>
+	 
+	 <!-- 삭제 -->
+	 <delete id="deleteArticlelike" parameterType="Articlelike">
+	 	delete from
+	 		articlelike
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 	and
+	 		user_no = #{userNo}
+	 </delete>
+	 
+	 <!-- 상세보기 -->
+	 <select id="selectArticlelikeOne" parameterType="Articlelike" resultType="Articlelike">
+	 	select
+	 		article_no as articleNo,
+	 		user_no as userNo,
+	 		like_date as likeDate
+	 	from
+	 		articlelike
+	 	where
+	 		1=1
+	 	and
+	 		article_no = #{articleNo}
+	 	and
+	 		user_no = #{userNo}
+	 </select>
+	 
+	 <!-- 검색(List) -->
+	 <select id="selectArticlelikeList" parameterType="Articlelike" resultType="Articlelike">
+	 	select
+	 		article_no as articleNo,
+	 		user_no as userNo,
+	 		like_date as likeDate
+	 	from
+	 		articlelike
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="likeDate != null and likeDate != ''">
+	 		and like_date like CONCAT('%',#{likeDate},'%')
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	<choose>
+	 		<when test="orderValue == 'DESC'">
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no DESC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no DESC
+	 				</when>
+	 				<otherwise>
+	 					order by like_date DESC
+	 				</otherwise>
+	 			</choose>
+	 		</when>
+	 		<otherwise>
+	 			<choose>
+	 				<when test="orderKey == 'articleNo'">
+	 					order by article_no ASC
+	 				</when>
+	 				<when test="orderKey == 'userNo'">
+	 					order by user_no ASC
+	 				</when>
+	 				<otherwise>
+	 					order by like_date ASC
+	 				</otherwise>
+	 			</choose>
+	 		</otherwise>
+	 	</choose>
+	 	<!-- page처리 위한 limit -->
+		<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+	 </select>
+	 
+	 <!-- 검색(갯수) -->
+	 <select id="selectArticlelikeCount" parameterType="Articlelike" resultType="Integer">
+	 	select
+	 		count(article_no)
+	 	from
+	 		articlelike
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="articleNo > 0">
+	 		and article_no = #{articleNo}
+	 	</if>
+	 	<if test="userNo > 0">
+	 		and user_no = #{userNo}
+	 	</if>
+	 	<if test="likeDate != null and likeDate != ''">
+	 		and like_date like CONCAT('%',#{likeDate},'%')
+	 	</if>
+	 </select>
+	 
+</mapper>

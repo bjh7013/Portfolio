@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssazit.dao.MyboardDAO">
+
+	<!-- 
+ 			private int 	boardNo;		/*PK AI 게시판번호*/
+			private int 	blogNo;				/*FK NN 블로그번호*/
+			private int 	groupNo;			/*NN default 0 그룹번호*/
+			private int 	seqNo;				/*NN default 0 게시판 순서(그룹 내 순서)*/
+			private int		depth;				/*NN default 0 계층*/
+			private String 	boardName;			/*NN 게시판명*/
+			private String 	boardType;			/*NN 게시글구분(A:알고|N:게시글|L:구분선)*/
+	
+			private String 	searchKey;			/*검색 키*/
+			private String 	searchValue;		/*검색 값*/
+			private String 	orderKey;			/*정렬 키*/
+			private String 	orderValue;			/*정렬 값*/
+			private int 	limitStart;			/*페이징 시작*/
+			private int 	limitEnd;			/*페이징 끝*/
+ 	-->
+ 	
+ 	<!-- 입력 -->
+ 	<insert id="insertMyboard" parameterType="Myboard">
+ 		insert into myboard(
+ 			blog_no, 
+ 			group_no,
+ 			seq_no,
+ 			depth,
+ 			board_name,
+ 			board_type
+ 			)
+ 		values (
+ 			#{blogNo},
+ 			#{groupNo},
+ 			#{seqNo},
+ 			#{depth},
+ 			#{boardName},
+ 			#{boardType}
+ 			)
+ 	</insert>
+ 	
+ 	<!-- 수정 -->
+ 	<update id="updateMyboard" parameterType="Myboard">
+ 		update
+ 			myboard
+ 		set
+ 			group_no = #{groupNo},
+ 			seq_no = #{seqNo},
+			depth = #{depth},
+ 			board_name = #{boardName},
+ 			board_type = #{boardType}
+ 		where
+ 			1=1
+ 		and
+ 			board_no = #{boardNo}
+ 	</update>
+ 	
+ 	<!-- 삭제 -->
+ 	<delete id="deleteMyboard" parameterType="Myboard">
+ 		delete from 
+ 			myboard
+ 		where 
+ 			1=1
+ 		and
+ 			board_no = #{boardNo}
+ 	</delete>
+ 	
+ 	<!-- 상세보기 -->
+ 	<select id="selectMyboardOne" parameterType="Myboard" resultType="Myboard">
+ 		select
+ 			board_no as boardNo,
+ 			blog_no as blogNo,
+ 			group_no as groupNo,
+ 			seq_no as seqNo,
+ 			depth as depth,
+ 			board_name as boardName,
+ 			board_type as boardType
+ 		from
+ 			myboard
+ 		where
+ 			1=1
+ 		and
+ 			board_no = #{boardNo}
+ 	</select>
+ 	
+ 	<!-- 검색(List) -->
+ 	<select id="selectMyboardList" parameterType="Myboard" resultType="Myboard">
+ 		select
+ 			board_no as boardNo,
+ 			blog_no as blogNo,
+ 			group_no as groupNo,
+ 			seq_no as seqNo,
+ 			depth as depth,
+ 			board_name as boardName,
+ 			board_type as boardType
+ 		from
+ 			myboard
+ 		where
+ 			1=1
+ 		<!-- 검색조건 -->
+ 		<if test="boardNo > 0">
+ 			and board_no = #{boardNo}
+ 		</if>
+ 		<if test="blogNo > 0">
+ 			and blog_no = #{blogNo}
+ 		</if>
+ 		<if test="groupNo > 0">
+ 			and group_no = #{groupNo}
+ 		</if>
+ 		<if test="seqNo > 0">
+ 			and seq_no = #{seqNo}
+ 		</if>
+ 		<if test="depth > 0">
+ 			and depth = #{depth}
+ 		</if>
+ 		<if test="boardName != null and boardName != ''">
+ 			and board_name like CONCAT('%',#{boardName},'%')
+ 		</if>
+ 		<if test="boardType != null and boardType != ''">
+ 			and board_type = #{boardType}
+ 		</if>
+		<!-- 정렬조건 -->
+		<choose>
+			<when test="orderValue == 'DESC'">
+				<choose>
+					<when test="orderKey == 'boardNo'">
+						order by board_no DESC
+					</when>
+					<when test="orderKey == 'blogNo'">
+						order by blog_no DESC
+					</when>
+					<when test="orderKey == 'groupNo'">
+						order by group_no DESC
+					</when>
+					<when test="orderKey == 'depth'">
+						order by depth DESC
+					</when>
+					<when test="orderKey == 'boardName'">
+						order by board_name DESC
+					</when>
+					<when test="orderKey == 'boardType'">
+						order by board_type DESC
+					</when>
+					<when test="orderKey == 'seqNo'">
+						order by seq_no DESC
+					</when>
+					<otherwise>
+						order by seq_no DESC
+					</otherwise>
+				</choose>
+			</when>
+			<otherwise>
+				<choose>
+					<when test="orderKey == 'boardNo'">
+						order by board_no ASC
+					</when>
+					<when test="orderKey == 'blogNo'">
+						order by blog_no ASC
+					</when>
+					<when test="orderKey == 'groupNo'">
+						order by group_no ASC
+					</when>
+					<when test="orderKey == 'depth'">
+						order by depth ASC
+					</when>
+					<when test="orderKey == 'boardName'">
+						order by board_name ASC
+					</when>
+					<when test="orderKey == 'boardType'">
+						order by board_type ASC
+					</when>
+					<when test="orderKey == 'seqNo'">
+						order by seq_no ASC
+					</when>
+					<otherwise>
+						order by group_no ASC, seq_no ASC
+					</otherwise>
+				</choose>
+			</otherwise>
+		</choose>
+		<!-- page처리 위한 limit -->
+		<if test="limitEnd > 0 and limitStart >= 0">
+			limit #{limitStart}, #{limitEnd}
+		</if>
+ 	</select>
+ 	
+ 	<!-- 검색(갯수) -->
+ 	<select id="selectMyboardCount" parameterType="Myboard" resultType="Integer">
+ 		select
+ 			count(board_no)
+ 		from
+ 			myboard
+ 		where
+ 			1=1
+ 		<!-- 검색조건 -->
+ 		<if test="boardNo > 0">
+ 			and board_no = #{boardNo}
+ 		</if>
+ 		<if test="blogNo > 0">
+ 			and blog_no = #{blogNo}
+ 		</if>
+ 		<if test="groupNo > 0">
+ 			and group_no = #{groupNo}
+ 		</if>
+ 		<if test="seqNo > 0">
+ 			and seq_no = #{seqNo}
+ 		</if>
+ 		<if test="depth > 0">
+ 			and depth = #{depth}
+ 		</if>
+ 		<if test="boardName != null and boardName != ''">
+ 			and board_name like CONCAT('%',#{boardName},'%')
+ 		</if>
+ 		<if test="boardType != null and boardType != ''">
+ 			and board_type = #{boardType}
+ 		</if>
+ 	</select>
+ 	
+ 	<!-- blogNo, groupNo 로 seqNo 최대값 반환 -->
+ 	<select id="selectSeqNoMax" parameterType="Myboard" resultType="Integer">
+ 		select
+ 			max(seq_no)
+ 		from
+ 			myboard
+ 		where
+ 			1=1
+ 		and
+ 			blog_no = #{blogNo}
+ 		and
+ 			group_no = #{groupNo}
+ 	</select>
+ 	
+	<!-- blogNo 로 depth 최대값 반환 -->
+ 	<select id="selectDepthMax" parameterType="Myboard" resultType="Integer">
+ 		select
+ 			max(depth)
+ 		from
+ 			myboard
+ 		where
+ 			1=1
+ 		and
+ 			blog_no = #{blogNo}
+ 	</select>
+ 	
+ 	<!-- blogNo로 groupNo 중복없이 주세요  -->
+ 	<select id="selectGroupNoDist" parameterType="Integer" resultType="Integer">
+ 		select
+ 			DISTINCT group_no
+ 		from
+ 			(select group_no, depth, blog_no, seq_no from myboard order by depth ASC) gn
+ 		where
+ 			blog_no = #{blogNo}
+ 		and
+ 			seq_no = 0
+ 	</select>
+ 	
+ 	<!-- 게시판 getBoardList -->
+ 	<select id="getBoardList" parameterType="Myboard" resultType="Myboard">
+ 		select
+ 			board_no as boardNo,
+ 			blog_no as blogNo,
+ 			group_no as groupNo,
+ 			seq_no as seqNo,
+ 			depth as depth,
+ 			board_name as boardName,
+ 			board_type as boardType
+ 		from 
+ 			myboard
+ 		where 
+ 			blog_no = #{blogNo}
+ 		order by
+ 			 depth , seq_no ASC
+ 	</select>
+ 	
+ 	<!-- 상위게시판 순서 조정 -->
+ 	<update id="updateRootBoard" parameterType="Myboard">
+ 		update 
+ 			myboard 
+ 		set 
+ 			depth=#{depth}
+ 		where 
+ 			blog_no=#{blogNo} 
+ 		and 
+ 			group_no = ( select 
+ 							group_no 
+ 						from(
+			 				select 
+			 					group_no 
+			 				from 
+			 					myboard 
+			 				where 
+			 					board_no = #{boardNo}
+			 				) as tmp
+ 						) 
+ 	</update>
+ 	<select id="getUserId" resultType="String">
+	    select distinct user_id
+		from myboard inner join blog on myboard.blog_no = blog.blog_no 
+			inner join user on blog.user_no = user.user_no
+		where myboard.group_no=#{groupNo};
+ 	</select>
+</mapper>

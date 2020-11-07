@@ -1,0 +1,73 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.17.3",
+    "core-js": "^2.6.11",
+    "fullcalendar": "^5.3.2",
+    "google-maps": "^4.3.3",
+    "jquery": "^3.5.1",
+    "node-sass": "^4.14.1",
+    "vue": "^2.6.12",
+    "vue-browser-geolocation": "^1.8.0",
+    "vue-cookies": "^1.7.4",
+    "vue-geolocation-api": "^0.1.17",
+    "vue-infinite-scroll": "^2.0.2",
+    "vue-router": "^3.4.5",
+    "vue2-google-maps": "^0.10.7",
+    "vuetify": "^2.3.12",
+    "vuex": "^3.5.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-plugin-eslint": "^3.12.1",
+    "@vue/cli-service": "^3.12.1",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "expose-loader": "^1.0.0",
+    "sass": "^1.26.11",
+    "sass-loader": "^7.3.1",
+    "vue-cli-plugin-vuetify": "^0.6.3",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.6.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/recommended",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "vue/max-attributes-per-line": 0,
+      "vue/singleline-html-element-content-newline": 0,
+      "vue/multiline-html-element-content-newline": 0,
+      "no-console": 1,
+      "no-unused-vars": 1,
+      "no-undef": 0
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
