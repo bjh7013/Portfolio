@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ssafy.happyhouse.dao.FAQDao">
+	<!-- FAQ글 전체 조회 -->
+	<select id="selectAllFAQ" resultType="FAQ" parameterType="searchPaging">
+		select faq_no as faqno, 
+				faq_title as faqtitle, 
+				faq_content as faqcontent, 
+				faq_type as faqtype  
+		from FAQ_board
+		where 1=1
+		<if test="word!=null and word!=''">
+		and faq_title like CONCAT('%',#{word},'%')
+		</if>
+		limit #{currentPage}, #{sizePerPage}
+	</select>
+
+	<select id="selectAlltest" resultType="FAQ">
+		select faq_no as faqno, 
+				faq_title as faqtitle, 
+				faq_content as faqcontent, 
+				faq_type as faqtype  
+		from FAQ_board
+		where 1=1
+	</select>
+	
+	<!-- FAQ글 검색 조회 -->
+	<select id="detailFAQ" resultType="FAQ">
+		select faq_no as faqno, 
+				faq_title as faqtitle, 
+				faq_content as faqcontent, 
+				faq_type as faqtype   
+		from FAQ_board
+		where 1=1
+		and faq_no=#{faqno}
+	</select>
+	
+	<!-- FAQ글 수정 -->
+	<update id="updateFAQ" parameterType="FAQ">
+		update FAQ_board
+		set faq_title = #{faqtitle}, faq_content =  #{faqcontent} , faq_type =  #{faqtype}
+		where faq_no=#{faqno}
+	</update>
+
+	<!-- FAQ글 삭제 -->
+	<delete id="deleteFAQ">
+		delete from FAQ_board 
+		where 1=1 and faq_no=#{faqno}
+	</delete>
+
+	<!-- FAQ글 생성 -->
+	<insert id="writeFAQ" parameterType="FAQ">
+		insert into FAQ_board(faq_title,faq_content,faq_type)
+		values(#{faqtitle},#{faqcontent},#{faqtype});
+	</insert>
+	
+	
+	<select id="searchcount" resultType="int" parameterType="searchPaging">
+		select count(*) from  FAQ_board
+	</select>
+	
+</mapper>
+
+
+

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- public List<HouseDeal> searchAll() ; public List<HouseDeal> searchDong(searchPaging 
+	searchPaging) ; public List<HouseDeal> searchAptname(searchPaging searchPaging) 
+	; public HouseDeal search(int no) ; -->
+<mapper namespace="com.ssafy.happyhouse.dao.HouseDao">
+
+	<select id="searchAll" resultType="HouseDeal"
+		parameterType="searchPaging">
+		select * from housedeal
+		where 1=1
+		limit #{currentPage},
+		#{sizePerPage}
+	</select>
+
+	<select id="search" resultType="HouseDeal">
+		select * from housedeal
+		where no =	#{no}
+	</select>
+
+	<select id="searchDong" resultType="HouseDeal"
+		parameterType="searchPaging">
+		select * from housedeal
+		where type in
+		<foreach collection="type" item="aaa" open="(" close=")"
+			separator=",">
+			#{aaa}
+		</foreach>
+		and dong like CONCAT('%',#{word},'%')
+		limit #{currentPage},
+		#{sizePerPage}
+
+	</select>
+
+
+	<select id="searchAptname" resultType="HouseDeal"
+		parameterType="searchPaging">
+		select * from housedeal
+		where type in
+		<foreach collection="type" item="aaa" open="(" close=")"
+			separator=",">
+			#{aaa}
+		</foreach>
+		and aptName like CONCAT('%',#{word},'%')
+		limit #{currentPage},
+		#{sizePerPage}
+
+	</select>
+
+	<select id="searchcount" resultType="int"
+		parameterType="searchPaging">
+		select count(*) from housedeal
+		where type in
+		<foreach collection="type" item="aaa" open="(" close=")"
+			separator=",">
+			#{aaa}
+		</foreach>
+		and dong like CONCAT('%',#{word},'%')
+		or aptName like
+		CONCAT('%',#{word},'%')
+	</select>
+
+	<select id="searchDongformap" resultType="HouseInfo">
+		select * from houseinfo
+		where dong like CONCAT('%',#{dong},'%')
+	</select>
+
+
+
+	<select id="cartcount" resultType="Integer">
+		select count(*) from housecart
+		where userid=#{userid}
+	</select>
+	
+	<select id="findaptNo" resultType="Integer" parameterType="housecart" >
+		select count(*) from housecart
+		where aptno=#{aptno}
+		and userid =#{userid}
+	</select>
+	<select id="showcart" resultType="Integer">
+		select aptno from housecart
+		where userid=#{userid}
+	</select>
+	<select id="distinctdong" resultType="String">
+		select distinct dong 
+		from housecart 
+		where userid = #{userid}
+	</select>
+
+
+	<insert id="insertcart" parameterType="housecart">
+		insert into
+		housecart(userid,aptno,dong)
+		values (#{userid},${aptno},${dong})
+	</insert>
+
+	<delete id="deletecart" parameterType="housecart">
+		delete from housecart
+		where userid=${userid}
+		and aptno=${aptno}
+		
+	</delete>
+
+
+</mapper>

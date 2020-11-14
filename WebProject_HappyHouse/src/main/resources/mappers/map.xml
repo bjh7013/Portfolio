@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<!-- 	
+		List<SidoCode> selectSido(); 
+		List<SidoCode> selectGugun(String sido); 
+		List<CommercialInfo> selectDong(String dong); 
+	-->
+<mapper namespace="com.ssafy.happyhouse.dao.MapDao">
+
+	<select id="selectSido" resultType="SidoCode">
+		SELECT left(sido_code,2)
+		sido_code, sido_name FROM sidocode
+		ORDER BY sido_code
+	</select>
+
+	<select id="selectGugun" resultType="SidoCode">
+		SELECT left(gugun_code,5)
+		gugun_code, gugun_name FROM guguncode
+		where left(gugun_code,2) =
+		#{sido}
+		ORDER BY gugun_code
+	</select>
+
+	<select id="selectDong" resultType="HouseInfo">
+		SELECT distinct dong, code FROM houseinfo
+		where code =  #{gugun}
+		order by dong
+	</select>
+	
+	<select id="selectCommercial" resultType = "CommercialInfo">
+		select * from commercialinfo
+		where dong like CONCAT('%',#{dong},'%')
+	</select>
+
+</mapper>
