@@ -99,14 +99,8 @@ export default {
     }
   },
   created(){
-    // 192.168.100.73 우현쓰 DB 오프라인
-    // 192.168.100.80 용수쓰 DB 오프라인
-    // 192.168.1.6 우현쓰 DB 온라인 
-    // 192.168.1.7 용수쓰 DB 온라인
-    // 192.168.1.2 정훈쓰 DB 온라인
-    // 3.34.139.139:8080 push할 떄는 여기로 하기
     // axios.defaults.baseURL = 'http://i3d104.p.ssafy.io/'; //6이 우현이형 7이 용수
-    axios.defaults.baseURL = 'http://192.168.1.2/9999';
+    axios.defaults.baseURL = 'http://localhost/9999';
     //페이지가 새로 로딩되면 vue-session에서 jwt값을 다시 받아오기
     const jwt = this.$session.get('jwt');
     // console.log(jwt);
