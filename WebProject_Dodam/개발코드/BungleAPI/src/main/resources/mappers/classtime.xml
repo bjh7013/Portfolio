@@ -1,0 +1,102 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.ClassTimeDAO">
+
+	<!-- 
+		private int timeNo; //시간표index
+		private String classDay; //클래스 요일
+		private String startTime; //시작시간
+		private String endTime; //종료시간
+		private int classNo; //클래스번호
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createClassTime" parameterType="ClassTime">
+	 	insert into class_time(
+	 		class_day,
+	 		start_time,
+	 		end_time,
+	 		class_no,
+	 		time_name
+	 		)
+	 	values (
+	 		#{classDay},
+	 		#{startTime},
+	 		#{endTime},
+	 		#{classNo},
+	 		#{timeName}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateClassTime" parameterType="ClassTime">
+	 	update
+	 		class_time
+	 	set
+	 		class_day = #{classDay},
+	 		start_time = #{startTime},
+	 		end_time = #{endTime},
+	 		class_no = #{classNo}
+	 	where
+	 		1=1
+	 	and
+	 		time_no = #{timeNo}
+	 </update>
+	 
+	 <!-- 클래스타임 1개 삭제 -->
+	 <delete id="deleteOneClassTime" parameterType="ClassTime">
+	 	delete from
+	 		class_time
+	 	where
+	 		1=1
+	 	and
+	 		time_no = #{timeNo}
+	 </delete>
+	 
+	 <!-- 유저의 클래스의 모든 클래스타임 삭제 -->
+	 <delete id="deleteUserClassTime" parameterType="ClassTime">
+	 	delete from
+	 		class_time
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 </delete>
+	 
+	 <!-- 클래스타임 1개 상세보기 -->
+	 <select id="selectOneClassTime" parameterType="ClassTime" resultType="ClassTime">
+	 	select
+	 		class_day as classDay,
+	 		start_time as startTime,
+	 		end_time as endTime,
+	 		class_no as classNo
+	 	from
+	 		class_time
+	 	where
+	 		1=1
+	 	and
+	 		time_no = #{timeNo}
+	 </select>
+	 
+	 <!-- 클래스 1개의 클래스타임 전체 상세보기 -->
+	 <select id="selectUserClassTime" parameterType="ClassTime" resultType="ClassTime">
+	 	select
+	 		class_time.time_no as timeNo,
+	 		class_time.class_day as classDay,
+	 		class_time.start_time as startTime,
+	 		class_time.end_time as endTime,
+	 		class_time.class_no as classNo,
+	 		class_time.time_name as timeName,
+            class.user_no as userNo
+	 	from
+	 		class_time
+            inner join class on class.class_no = class_time.class_no
+	 	where
+	 		1=1
+	 	and
+	 		class_time.class_no = #{classNo};
+	 </select>
+	 
+	 
+</mapper>

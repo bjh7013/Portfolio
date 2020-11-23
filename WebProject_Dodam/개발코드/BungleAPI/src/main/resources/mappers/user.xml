@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mappers/gueset.xml -->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.UserDAO">
+
+			 <!--	userNo
+				userId
+				userPw
+				userName
+				nickName
+				userType
+				birthDate
+				profileImg -->
+	
+	<!-- insert 처리 -->
+	<insert id="createUser" parameterType="User">
+		insert into user( 
+						user_id,
+						user_pw,
+						user_name,
+						nick_name,
+						user_type,
+						birth_date,
+						profile_img,
+						email
+				)
+				value (
+						#{userId},
+						#{userPw},
+						#{userName},
+						#{nickName},
+						#{userType},
+						#{birthDate},
+						#{profileImg},
+						#{email}
+				) 
+	</insert>
+	
+	<!-- udpate 처리 -->
+	<update id="updateUser" parameterType="User">
+		update user 
+		   set 
+		   	   user_no=#{userNo},
+		   	   user_id = #{userId},
+			   user_pw = #{userPw},
+			   user_name = #{userName},
+			   nick_name=#{nickName},
+			   user_type=#{userType},
+			   birth_date=#{birthDate},
+			   profile_img=#{profileImg},
+			   email=#{email}
+		 where user_no = #{userNo}
+	</update>
+	
+	<!-- delete 처리 -->
+	<delete id="deleteUser" parameterType="String">
+		delete from user 
+		where user_id=#{userId} and
+			  user_pw=#{userPw}
+	</delete>
+	
+	<!-- id으로 select 처리 -->
+	<select id="selectUserById" parameterType="User" resultType="Integer">
+		select 
+			count(*)
+		  from user 
+		 where user_id = #{userId} 
+	</select>
+
+
+	<select id="selectUserByIdAndPwd" parameterType="String" resultType="User">
+		select * 
+		  from user 
+		 where user_id = #{userId} and user_pw=#{userPw}
+	</select>
+	
+	<select id="getUserbyIdandNo" parameterType="User" resultType="User">
+		select * 
+		  from user 
+		 where user_id = #{userId} and user_no=#{userNo}
+	</select>
+	
+	<!-- user_no가져오기 -->
+	<select id="getUserInfo" parameterType="User" resultType="User">
+		select 
+			user_no as userNo,
+			user_type as userType,
+			user_id as userId,
+			nick_name as nickName
+		  from user 
+		 where user_id = #{userId} 
+	</select>
+	
+	<!-- 부모님신청 insert 처리 -->
+	<insert id="makeParent" parameterType="Parent">
+		insert into parent(
+						user_no,
+						child_no
+				)
+				value (
+						#{userNo},
+						#{childNo}
+				) 
+	</insert>
+	
+	<!-- user_no가져오기 -->
+	<select id="childrenInfo" parameterType="Parent" resultType="User">
+		select 
+			user.user_no as userNo,
+			user.user_id as userId, 
+			user.user_name as userName, 
+			user.nick_name as nickName, 
+			user.birth_date as birthDate, 
+			user.profile_img as profileImg
+		from user 
+			inner join parent on parent.child_no = user.user_no 
+		where 1=1 
+			and parent.user_no = #{userNo};
+	</select>
+	
+	<delete id="deleteChild" parameterType="Parent">
+		delete from parent
+		where 1=1
+			and user_no = #{userNo} and child_no = #{childNo}
+	</delete>
+	
+	<!-- 부모-자식 있는지 확인 -->
+	<select id="checkParent" parameterType="Parent" resultType="Parent">
+		select 
+			parent_no as parentNo
+		from parent
+		where user_no = #{userNo}
+		and child_no = #{childNo}
+	</select>
+	
+	<!-- user_no가져오기 -->
+	<select id="myInfo" parameterType="User" resultType="User">
+		select 
+			user_no as userNo,
+			user_id as userId, 
+			user_name as userName, 
+			email as email,
+			nick_name as nickName, 
+			birth_date as birthDate, 
+			profile_img as profileImg
+		from 
+			user
+		where 1=1 
+			and 
+		user_no = #{userNo};
+	</select>
+</mapper>

@@ -1,0 +1,136 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.HomeworkSubmitDAO">
+	<insert id="createHomeworkSubmit">
+		insert into homework_submit(homework_no, student_no, submit_content)
+		values(#{homeworkNo},#{studentNo},#{submitContent})
+	</insert>
+	<update id="updateHomeworkSubmit">
+		update homework_submit
+		set submit_content = #{submitContent},
+			submit_date = now()
+		where submit_no = #{submitNo}
+	</update>
+	<delete id="deleteHomeworkSubmit">
+		delete from homework_submit
+		where submit_no = #{submitNo}
+	</delete>
+	
+	<select id="searchHomeworkSubmitTeacher" resultType="HomeworkSubmit">
+		select submit_no, submit_date, score
+			homework_no, homework_name, homework_type, content_no, due_date
+			session_no, session_name,
+			student_no, user_id, user_name, profile_img
+		from homework_submit 
+		natural join homework 
+		join class_session using(session_no) 
+		join user on student_no = user.user_no
+		where 1=1
+		<if test="sessionNo > 0">
+			and session_no = #{sessionNo}
+		</if>
+		<if test="classNo > 0">
+			and class_no = #{classNo}
+		</if>
+		<if test="studentNo > 0">
+			and student_no = #{studentNo}
+		</if>
+		<if test="homeworkNo > 0">
+			and homework_no = #{homework_no}
+		</if>
+		<if test="homework_name != null">
+			and homework_name = #{homeworkName}
+		</if>
+		<if test="homework_type != null">
+			and homework_type = #{homeworkType}
+		</if>
+		<if test="session_name != null">
+			and session_name = #{sessionName}
+		</if>
+	</select>
+	
+	<select id="searchHomeworkSubmitStudent" resultType="HomeworkSubmit">
+		select submit_no, submit_date, score
+			homework_no, homework_name, homework_type, content_no, due_date 
+			session_no, session_name,
+			class_no, class_name, class_img
+		from homework_submit
+		natural join homework 
+		join class_session using(session_no) 
+		join class using(class_no)
+		where 1=1	
+		<if test="sessionNo > 0">
+			and session_no = #{sessionNo}
+		</if>
+		<if test="classNo > 0">
+			and class_no = #{classNo}
+		</if>
+		<if test="homeworkNo > 0">
+			and homework_no = #{homework_no}
+		</if>
+		<if test="homework_name != null">
+			and homework_name = #{homeworkName}
+		</if>
+		<if test="homework_type != null">
+			and homework_type = #{homeworkType}
+		</if>
+		<if test="session_name != null">
+			and session_name = #{sessionName}
+		</if>
+	</select>
+	
+	<select id="getHomeworkSubmit" resultType="HomeworkSubmit">
+		select submit_no, homework_no, submit_content, submit_date, score, eval_content
+			session_no, session_name,
+			class_no, class_name
+		from homework_submit 
+			natural join homework
+			natural join class_session
+			join class using(class_no)
+		where submit_no = #{submitNo}
+	</select>
+
+	<select id="validateC" resultType="boolean">
+		select if(count(class_no) > 0, true, false)
+		from class_signup
+		where student_no = #{studentNo} 
+			and class_no = (select class_no from homework natural join class_session where homework_no = #{homeworkNo} and now() <![CDATA[<]]> due_date)
+			and is_approved = true
+	</select>
+	
+	<select id="isAlreadySubmitted" resultType="boolean">
+		select if(count(*) > 0, true,false) 
+		from homework_submit 
+		where homework_no=#{homeworkNo} and student_no = #{studentNo};
+	</select>
+	
+	<select id="validateUD" resultType="boolean">
+		select if(count(submit_no) > 0, true, false) 
+		from homework_submit natural join homework 
+		where submit_no = #{submitNo}
+			and student_no = #{studentNo}
+			and now() <![CDATA[<]]> due_date
+	</select>
+	
+	<update id="homeworkEval">
+		update homework_submit
+		set score = #{score},
+			eval_content = #{evalContent}
+		where submit_no = #{submitNo}
+	</update>
+	<update id="deleteHomeworkEval">
+		update homework_submit
+		set score = null,
+			eval_content = null
+		where submit_no = #{submitNo}
+	</update>
+	<select id="validateEval" resultType="boolean">
+		select if(count(class_no) > 0, true, false)
+			from (select * from homework_submit where submit_no = #{submitNo}) submit
+			natural join homework
+			natural join class_session 
+			natural join class
+		where user_no = #{teacherNo}
+	</select>
+</mapper>

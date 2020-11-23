@@ -1,0 +1,237 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.WordTestDAO">
+
+	<!-- 
+		private int testNo; //낱말 테스트 번호
+		private String word; // 낱말
+		private String wordImg; // 낱말 이미지 경로
+		private int homeworkNo; // 할당된 과제 번호
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createWordTest" parameterType="WordTest">
+	 	insert into word_test(
+	 		word,
+	 		word_img,
+	 		homework_no
+	 		)
+	 	values (
+	 		#{word},
+	 		#{wordImg},
+	 		#{homeworkNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateWordTest" parameterType="WordTest">
+	 	update
+	 		word_test
+	 	set
+	 		word = #{word},
+	 		word_img = #{wordImg},
+	 		homework_no = #{homeworkNo}
+	 	where
+	 		1=1
+	 	and
+	 		test_no = #{testNo}
+	 </update>
+	 
+	 <!-- 단어 1개 삭제 -->
+	 <delete id="deleteWordTest" parameterType="WordTest">
+	 	delete from
+	 		word_test
+	 	where
+	 		1=1
+	 	and
+	 		test_no = #{testNo}
+	 </delete>
+	 
+	 
+	 <!-- 단어 1개 보기 -->
+	 <select id="selectOneWordTest" parameterType="WordTest" resultType="WordTest">
+	 	select
+	 		test_no as testNo,
+	 		word as word,
+	 		word_img as wordImg,
+	 		homework_no as homeworkNo
+	 	from
+	 		word_test
+	 	where
+	 		1=1
+	 	and
+	 		test_no = #{testNo}
+	 </select>
+	 
+	 <!-- 단어 여러개~전체 보기 -->
+	 <select id="selectAllWordTest" parameterType="WordTest" resultType="WordTest">
+	 	select
+	 		test_no as testNo,
+	 		word as word,
+	 		word_img as wordImg,
+	 		homework_no as homeworkNo
+	 	from
+	 		word_test
+	 	where
+	 		1=1
+	 	<if test="homeworkNo!=0">
+	 		and homework_no = #{homeworkNo}
+	 	</if>
+	 </select>
+	 
+	 <!-- 단어이미지 수정하기 -->
+	 <update id="updateWordTestImg" parameterType="WordTest">
+		update
+			word_test
+		set
+			word_img = #{wordImg}
+		where
+			test_no = #{testNo}
+	</update>
+	
+	<!-- 
+		int categoryNo; //카테고리번호
+		String categoryName; //카테고리이름
+		String categoryImg; //카테고리 이미지
+	 -->
+	<!-- 단어 카테고리 전체 보기 -->
+	 <select id="selectWordCategory" parameterType="WordCategory" resultType="WordCategory">
+	 	select
+	 		category_no as categoryNo,
+	 		category_name as categoryName,
+	 		category_img as categoryImg
+	 	from
+	 		word_category
+	 	where
+	 		1=1
+	 </select>
+	 
+	 
+	<!-- 카테고리 단어 전체 보기 -->
+	 <select id="selectCategoryWordTest" parameterType="WordTest" resultType="WordTest">
+	 	select
+	 		test_no as testNo,
+	 		word as word,
+	 		word_img as wordImg,
+	 		category_no as categoryNo
+	 	from
+	 		word_test
+	 	where
+	 		1=1
+	 	and
+	 		category_no = #{categoryNo}
+	 </select>
+	 
+	 <!-- wordset입력 -->
+	 <insert id="createWordSet" parameterType="WordSet" useGeneratedKeys="true" keyProperty="wordsetNo">
+	 	insert into wordset(
+	 		user_no,
+	 		wordset_title
+	 		)
+	 	values (
+	 		#{userNo},
+	 		#{wordsetTitle}
+	 		)
+	 </insert>
+	 
+	 <!-- wordset입력 -->
+	 <insert id="createWordSetContent" parameterType="WordSetReal">
+	 	insert into wordset_content(
+	 		wordset_no,
+	 		problem_no,
+	 		problem_name,
+	 		problem_img
+	 		)
+	 	values (
+	 		#{wordsetNo},
+	 		#{problemNo},
+	 		#{problemName},
+	 		#{problemImg}
+	 		)
+	 </insert>
+	 
+	 <!-- 유저 단어셋 가져오기 -->
+	 <select id="getWordSet" parameterType="WordSet" resultType="WordSet">
+	 	select
+	 		wordset_no as wordsetNo,
+	 		wordset_title as wordsetTitle
+	 	from
+	 		wordset
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 </select>
+	 
+	 <!-- 유저 해당단어셋 내용 가져오기 -->
+	 <select id="getWordSetContent" parameterType="WordSetReal" resultType="WordSetReal">
+	 	select
+	 		problem_no as problemNo,
+	 		problem_name as problemName,
+	 		problem_img as problemImg
+	 	from
+	 		wordset_content
+	 	where
+	 		1=1
+	 	and
+	 		wordset_no = #{wordsetNo}
+	 </select>
+	 
+	 <!-- wordset입력 -->
+	 <insert id="makeWordHomeWork" parameterType="Homework" useGeneratedKeys="true" keyProperty="homeworkNo">
+	 	insert into homework(
+	 		homework_name,
+	 		homework_type,
+	 		homework_content,
+	 		session_no,
+	 		due_date
+	 		)
+	 	values (
+	 		#{homeworkName},
+	 		#{homeworkType},
+	 		#{homeworkContent},
+	 		#{sessionNo},
+	 		#{dueDate}
+	 		)
+	 </insert>
+	 
+	 <!-- word 과제 데이터들 입력 -->
+	 <insert id="makeWordHomeWorkContent" parameterType="WordTest">
+	 	insert into word_test(
+	 		word,
+	 		word_img,
+	 		homework_no
+	 		<if test="categoryNo!=0">
+	 		,category_no
+	 		</if>
+	 		)
+	 	values (
+	 		#{word},
+	 		#{wordImg},
+	 		#{homeworkNo}
+	 		<if test="categoryNo!=0">
+	 		, #{categoryNo}
+	 		</if>
+	 		)
+	 </insert>
+	 
+	 <!-- 홈워크 단어 전체 보기 -->
+	 <select id="selectHomeworkWordTest" parameterType="WordTest" resultType="WordTest">
+	 	select
+	 		test_no as testNo,
+	 		word as word,
+	 		word_img as wordImg,
+	 		category_no as categoryNo,
+	 		homework_no as homeworkNo
+	 	from
+	 		word_test
+	 	where
+	 		1=1
+	 	and
+	 		homework_no = #{homeworkNo}
+	 </select>
+	 
+
+	 
+</mapper>

@@ -1,0 +1,152 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.WordTestSubmitDAO">
+
+	<!-- 
+		private int submitNo; //제출 번호
+		private int wordTestNo;//낱말 테스트 번호
+		private int studentNo;//학생 번호
+		private String submitAnswer;//제출 답안
+		private boolean isCorrect;//정답 여부
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createWordTestSubmit" parameterType="WordTestSubmit" useGeneratedKeys="true" keyProperty="submitNo">
+	 	insert into word_test_submit(
+	 		word_test_no,
+	 		student_no,
+	 		submit_answer
+	 		)
+	 	values (
+	 		#{wordTestNo},
+	 		#{studentNo},
+	 		#{submitAnswer}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateWordTestSubmit" parameterType="WordTestSubmit">
+	 	update
+	 		word_test_submit
+	 	set
+	 		word_test_no = #{wordTestNo},
+	 		student_no = #{studentNo},
+	 		submit_answer = #{submitAnswer},
+	 		is_correct = #{isCorrect},
+	 		submit_img = #{submitImg}
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </update>
+	 
+	 <!-- 단어제출 1개 삭제 -->
+	 <delete id="deleteWordTestSubmit" parameterType="WordTestSubmit">
+	 	delete from
+	 		word_test_submit
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </delete>
+	 
+	 
+	 <!-- 단어제출 1개 보기 -->
+	 <select id="selectOneWordTestSubmit" parameterType="WordTestSubmit" resultType="WordTestSubmit">
+	 	select
+	 		word_test_no as wordTestNo,
+	 		student_no as studentNo,
+	 		submit_answer as submitAnswer,
+	 		is_correct as isCorrect
+	 	from
+	 		word_test_submit
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </select>
+	 
+	 
+	 <!-- 단어제출 1개 보기(해당유저의최근제출) -->
+	 <select id="selectOneWordTestSubmitIndex" parameterType="WordTestSubmit" resultType="WordTestSubmit">
+	 	select
+	 		submit_no as submitNo
+	 	from
+	 		word_test_submit
+	 	where
+	 		1=1
+	 	and
+	 		student_no = #{studentNo}
+	 	order by 
+	 		submit_no DESC
+	 	limit 
+	 		0,1;
+	 </select>
+	 
+	 <!-- 단어제출 여러개~전체 보기 -->
+	 <select id="selectAllWordTestSubmit" parameterType="WordTestSubmit" resultType="WordTestSubmit">
+	 	select
+	 		word_test_no as wordTestNo,
+	 		student_no as studentNo,
+	 		submit_answer as submitAnswer,
+	 		is_correct as isCorrect
+	 	from
+	 		word_test_submit
+	 	where
+	 		1=1
+	 </select>
+	 
+	 <update id="updateWordTestSubmitImg" parameterType="WordTestSubmit">
+		update
+			word_test_submit
+		set
+			submit_img = #{submitImg}
+		where
+			submit_no = #{submitNo}
+	</update>
+	 
+	 <select id="getHomework" resultType="Homework">
+	 	select homework_no
+	 	from word_test
+	 	where test_no = #{wordTestNo}
+	 </select>
+	 
+	 <select id	="selectTestNoWordTestSubmit" parameterType="Integer" resultType="wordTestSubmit">
+	 	select *
+	 	from word_test_submit
+	 	where word_test_no=#{testNo}
+	 </select>
+	 <select id="isAlreadySubmitted" parameterType="WordTestSubmit" resultType="boolean">
+		select if(category_no is null, 
+				(select if(count(*) > 0, true,false)
+				from word_test_submit 
+				where word_test_no=#{wordTestNo} and student_no = #{studentNo}),
+			false)
+		from word_test
+		where test_no = #{wordTestNo}		
+	</select>
+	
+	<select id="getSubmitCount" parameterType="Integer" resultType="Integer">
+	 	select count(*)
+	 	from word_test_submit wts
+	 	left join word_test wt on wts.word_test_no=wt.test_no 
+	 	where wt.category_no is not null and wts.student_no=#{userNo} and wts.is_correct is TRUE
+	 </select>
+	 
+	 <select id="getSubmitGroupCategory" parameterType="Integer" resultType="WordCategoryCount">
+	 	select count(wc.category_name) as categoryCount, wc.category_name as categoryName
+	 	from word_test_submit wts
+	 	left join word_test wt on wts.word_test_no=wt.test_no
+	 	left join word_category wc on wt.category_no =wc.category_no 
+	 	where wt.category_no is not null and wts.student_no=#{userNo} and wts.is_correct is TRUE
+	 	GROUP BY wc.category_name;
+	 </select>
+	 
+	 <select id="checkSubmit" parameterType="WordTestSubmit" resultType="WordTestSubmit">
+	 	select *
+	 	from word_test_submit 
+	 	where student_no=#{studentNo} and word_test_no=#{wordTestNo};
+	 </select>
+	 
+</mapper>

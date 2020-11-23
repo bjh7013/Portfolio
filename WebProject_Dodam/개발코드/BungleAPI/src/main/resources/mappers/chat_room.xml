@@ -1,0 +1,49 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.ChatRoomDAO">
+
+
+	<!-- insert 처리 -->
+	<insert id="insertChatRoom" parameterType="ChatRoom"
+		useGeneratedKeys="true" keyProperty="chatRoomNo">
+		insert into chat_room(
+		class_no,
+		chat_room_no
+		)
+		value (
+		#{classNo},
+		#{chatRoomNo}
+		)
+	</insert>
+
+	<!-- delete 처리 -->
+	<delete id="deleteChatRoom" parameterType="Integer">
+		delete from chat_room
+		where chat_room_no=#{chatRoomNo}
+	</delete>
+	
+	
+	<select id="selectAllRoom" 
+		resultType="ChatRoom">
+		select *
+		from chat_room
+	</select>
+	<select id="selectRoomByClassNo" parameterType="Integer"
+		resultType="ChatRoom">
+		select *
+		from chat_room
+		where class_no=#{classNo}
+	</select>
+	
+	<select id="selectLimitTen" parameterType="Integer" resultType="ChatRoom">
+		select *
+		from chat_room
+		limit #{page}, 10
+	</select>
+	<select id="countRows" resultType="Integer">
+		select count(*) from chat_room;
+	</select>
+
+	 
+</mapper>

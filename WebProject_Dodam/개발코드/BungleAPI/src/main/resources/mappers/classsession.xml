@@ -1,0 +1,113 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.ClassSessionDAO">
+
+	<!-- 
+		private int sessionNo; // 세션 번호
+		private String sessionName; // 세션 이름
+		private String sessionDesc; // 세션 설명
+		private int classNo; // 등록 클래스 번호
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createClassSession" parameterType="ClassSession">
+	 	insert into class_session(
+	 		session_name,
+	 		session_desc,
+	 		class_no
+	 		)
+	 	values (
+	 		#{sessionName},
+	 		#{sessionDesc},
+	 		#{classNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateClassSession" parameterType="ClassSession">
+	 	update
+	 		class_session
+	 	set
+	 		session_name = #{sessionName},
+	 		session_desc = #{sessionDesc},
+	 		class_no = #{classNo}
+	 	where
+	 		1=1
+	 	and
+	 		session_no = #{sessionNo}
+	 </update>
+	 
+	 <!-- 클래스세션 1개 삭제 -->
+	 <delete id="deleteOneClassSession" parameterType="ClassSession">
+	 	delete from
+	 		class_session
+	 	where
+	 		1=1
+	 	and
+	 		session_no = #{sessionNo}
+	 </delete>
+	 
+	 <!-- 클래스의 모든 클래스세션 삭제 -->
+	 <delete id="deleteClassSession" parameterType="ClassSession">
+	 	delete from
+	 		class_session
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 </delete>
+	 
+	 <!-- 클래스세션 1개 상세보기 -->
+	 <select id="selectOneClassSession" parameterType="ClassSession" resultType="ClassSession">
+	 	select
+	 		session_no as sessionNo,
+	 		session_name as sessionName,
+	 		session_desc as sessionDesc,
+	 		class_no as classNo
+	 	from
+	 		class_session
+	 	where
+	 		1=1
+	 	and
+	 		session_no = #{sessionNo}
+	 </select>
+	 
+	 <!-- 클래스세션 전체 상세보기 -->
+	 <select id="selectClassSession" parameterType="ClassSession" resultType="ClassSession">
+	 	select
+	 		session_no as sessionNo,
+	 		session_name as sessionName,
+	 		session_desc as sessionDesc,
+	 		class_no as classNo
+	 	from
+	 		class_session
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 </select>
+	 
+	 <!-- 전체검색 -->
+	 <select id="selectAllClassSession" parameterType="ClassSession" resultType="ClassSession">
+	 	select
+	 		session_no as sessionNo,
+	 		session_name as sessionName,
+	 		session_desc as sessionDesc,
+	 		class_no as classNo
+	 	from
+	 		class_session
+	 	where
+	 		1=1
+	 	<!-- 검색조건 -->
+	 	<if test="classNo > 0">
+	 		and class_no = #{classNo}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	order by class_no ASC
+	 	
+	 	<!-- page처리 위한 limit -->
+		
+	 </select>
+	 
+</mapper>

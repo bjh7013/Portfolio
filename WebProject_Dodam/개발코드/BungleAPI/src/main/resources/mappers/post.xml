@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mappers/gueset.xml -->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.PostDAO">
+
+			 <!--	userNo
+				userId
+				userPw
+				userName
+				nickName
+				userType
+				birthDate
+				profileImg -->
+	
+	<!-- insert 처리 -->
+	<insert id="createPost" parameterType="Post">
+		insert into post( 
+						post_no,
+						post_type,
+						write_date,
+						title,
+						content,
+						class_no,
+						writer_no,
+						question_no
+				)
+				value (
+						#{postNo},
+						#{postType},
+						#{writeDate},
+						#{title},
+						#{content},
+						#{classNo},
+						#{writerNo},
+						#{questionNo}
+				) 
+	</insert>
+	
+	<!-- udpate 처리 -->
+	<update id="updatePost" parameterType="Post">
+		update post 
+		   set 
+		   	   post_no=#{postNo},
+		   	   post_type = #{postType},
+			   write_date = #{userPw},
+			   title = #{title},
+			   content=#{content},
+			   class_no=#{classNo},
+			   writer_no=#{writerNo},
+			   question_no=#{questionNo}
+		 where post_no = #{postNo}
+	</update>
+	
+	<!-- delete 처리 -->
+	<delete id="deletePost" parameterType="Post">
+		delete from post 
+		where post_no=#{postNo}
+	</delete>
+	
+	<!-- id으로 select 처리 -->
+	<select id="selectOnePost" parameterType="string" resultType="Post">
+		select * 
+		  from post 
+		 where post_no = #{postNo} 
+	</select>
+
+
+	<select id="selectUserPost" parameterType="String" resultType="Post">
+		select * 
+		  from post 
+		 where writer_no = #{writerNo} 
+	</select>
+	
+	<select id="selectAllPost" parameterType="String" resultType="Post">
+		select * 
+		  from post 
+	</select>
+	
+</mapper>

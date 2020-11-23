@@ -1,0 +1,165 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.DictationSubmitDAO">
+
+	<!-- 
+		private int submitNo; //제출번호
+		private int dictationNo; //받아쓰기번호
+		private int studentNo; //학생 번호
+		private String submitAnswer; //학생 답
+		private boolean isCorrect; //정답여부
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createDictationSubmit" parameterType="DictationSubmit" useGeneratedKeys="true" keyProperty="submitNo">
+	 	insert into dictation_submit(
+	 		dictation_no,
+	 		student_no,
+	 		submit_answer,
+	 		is_correct,
+	 		submit_img
+	 		)
+	 	values (
+	 		#{dictationNo},
+	 		#{studentNo},
+	 		#{submitAnswer},
+	 		#{isCorrect},
+	 		#{submitImg}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateDictationSubmit" parameterType="DictationSubmit">
+	 	update
+	 		dictation_submit
+	 	set
+	 		dictation_no = #{dictationNo},
+	 		student_no = #{studentNo},
+	 		submit_answer = #{submitAnswer},
+	 		is_correct = #{isCorrect},
+	 		submit_img = #{submitImg}
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </update>
+	 
+	 <!-- 받아쓰기 제출 삭제 -->
+	 <delete id="deleteDictationSubmit" parameterType="DictationSubmit">
+	 	delete from
+	 		dictation_submit
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </delete>
+	 
+	 
+	 <!-- 받아쓰기 제출 1개 보기 -->
+	 <select id="selectOneDictationSubmit" parameterType="DictationSubmit" resultType="DictationSubmit">
+	 	select
+	 		dictation_no as dictationNo,
+	 		student_no as studentNo,
+	 		submit_answer as submitAnswer,
+	 		is_correct as isCorrect
+	 	from
+	 		dictation_submit
+	 	where
+	 		1=1
+	 	and
+	 		submit_no = #{submitNo}
+	 </select>
+	 
+	 <!-- 받아쓰기 제출 여러개~전체 보기 -->
+	 <select id="selectAllDictationSubmit" parameterType="DictationSubmit" resultType="DictationSubmit">
+	 	select
+	 		dictation_no as dictationNo,
+	 		student_no as studentNo,
+	 		submit_answer as submitAnswer,
+	 		is_correct as isCorrect
+	 	from
+	 		dictation_submit
+	 	where
+	 		1=1
+	 </select>
+	 
+	 <select id="selectDictationSubmitByHomeworkNo" parameterType="Integer" resultType="DictationSubmit">
+	 	select
+	 		dictation_submit.submit_no as submitNo,
+	 		dictation_submit.dictation_no as dictationNo,
+	 		dictation_submit.student_no as studentNo,
+	 		dictation_submit.submit_answer as submitAnswer,
+	 		dictation_submit.is_correct as isCorrect,
+	 		dictation_submit.submit_img as submitImg
+	 	from
+	 		dictation_submit 
+	 		join dictation on dictation_submit.dictation_no = dictation.dictation_no
+	 	where dictation.homework_no=#{homeworkNo}
+	 </select>
+	 	 <select id="selectDictationSubmitByDictationNo" parameterType="Integer" resultType="DictationSubmit">
+	 	select
+	 		*
+	 	from
+	 		dictation_submit 
+	 		
+	 	where dictation_no=#{dictationNo}
+	 </select>
+	  	 <select id="selectDictationSubmitByUserNo" parameterType="Integer" resultType="DictationSubmit">
+	 	select
+	 		*
+	 	from
+	 		dictation_submit 
+	 	where student_no =#{userNo}
+	 	ORDER by submit_no DESC 
+	 	limit 5;
+	 </select>
+
+	 <select id="validateC" resultType="boolean">
+	 	select if((select if(count(*) > 0, true,false)
+					from dictation
+					where dictation_no = #{dictationNo} and dictation_level is not null), 
+				true,(select if(count(*) > 0, true, false)
+						from class_signup 
+						where class_no = (select class_no 
+											from (select * from dictation where dictation_no = #{dictationNo}) d 
+											natural join homework natural join class_session)
+									and student_no = #{studentNo}
+									and is_approved = true));
+	 </select>
+	 <select id="validateUD" resultType="boolean">
+	 	select if(count(submit_no) > 0, true, false) 
+		from dictation_submit natural join dictation natural join homework
+		where submit_no = #{submitNo}
+			and student_no = #{studentNo}
+			and now() <![CDATA[<]]> due_date
+	 </select>
+	 <select id="getHomework" resultType="Homework">
+	 	select homework_no
+	 	from dictation
+	 	where dictation_no = #{dictationNo}
+	 </select>
+	 
+	 <select id="getSubmitCount" parameterType="Integer" resultType="Integer">
+	 	select count(*)
+	 	from dictation_submit ds
+	 	left join dictation d on d.dictation_no=ds.dictation_no 
+	 	where dictation_level is not null and ds.student_no=#{userNo} 
+	 </select>
+	 
+	 <select id="getSubmitGroupLevel" parameterType="Integer" resultType="DictationCount">
+	 	select d.dictation_level as dictationLevel,count(d.dictation_level) as dictationCount
+	 	from dictation_submit ds
+	 	left join dictation d on d.dictation_no=ds.dictation_no 
+	 	where dictation_level is not null and ds.student_no=#{userNo} 
+	 	GROUP BY d.dictation_level;
+	 </select>
+	
+	 <select id="checkDictationSubmit" parameterType="DictationSubmit" resultType="DictationSubmit">
+	 	select *
+	 	from dictation_submit
+	 	where dictation_no=#{dictationNo} and student_no=#{studentNo}
+	 </select>
+	
+
+</mapper>

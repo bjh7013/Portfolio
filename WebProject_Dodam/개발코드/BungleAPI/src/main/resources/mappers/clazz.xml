@@ -1,0 +1,312 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.ClassDAO">
+
+	<!-- 
+		private int classNo; // 클래스번호
+		private String className; // 클래스이름
+		private String classDesc; // 클래스설명
+		private String targetAge; // 대상연령
+		private int userLimit; // 정원
+		private String openType; // 공개유형
+		private String startDate; // 클래스 시작일
+		private String endDate; // 클래스 종료일
+		private String classImg; // 클래스 이미지
+		private int userNo; // 개설자 번호
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createClass" parameterType="Clazz">
+	 	insert into class(
+	 		class_name,
+	 		class_desc,
+	 		target_age,
+	 		user_limit,
+	 		open_type,
+	 		start_date,
+	 		end_date,
+	 		class_img,
+	 		user_no
+	 		)
+	 	values (
+	 		#{className},
+	 		#{classDesc},
+	 		#{targetAge},
+	 		#{userLimit},
+	 		#{openType},
+	 		#{startDate},
+	 		#{endDate},
+	 		#{classImg},
+	 		#{userNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateClass" parameterType="Clazz">
+	 	update
+	 		class
+	 	set
+	 		class_name = #{className},
+	 		class_desc = #{classDesc},
+	 		target_age = #{targetAge},
+	 		user_limit = #{userLimit},
+	 		open_type = #{openType},
+	 		start_date = #{startDate},
+	 		end_date = #{endDate}
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 	and
+	 		user_no = #{userNo}
+	 </update>
+	 
+	 <!-- 클래스 1개 삭제 -->
+	 <delete id="deleteOneClass" parameterType="Clazz">
+	 	delete from
+	 		class
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 </delete>
+	 
+	 <!-- 유저의 모든 클래스 삭제 -->
+	 <delete id="deleteUserClass" parameterType="Clazz">
+	 	delete from
+	 		class
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 </delete>
+	 
+	 <!-- 클래스 1개 상세보기 -->
+	 <select id="selectOneClass" parameterType="Clazz" resultType="Clazz">
+	 	select
+	 		class.class_no as classNo,
+	 		class.class_name as className,
+	 		class.class_desc as classDesc,
+	 		class.target_age as targetAge,
+	 		class.user_limit as userLimit,
+	 		class.open_type as openType,
+	 		class.start_date as startDate,
+	 		class.end_date as endDate,
+	 		class.class_img as classImg,
+	 		class.user_no as userNo,
+            count(class.class_no) as studentCnt
+	 	from
+	 		class
+            left outer join class_signup on class.class_no = class_signup.class_no and is_approved = 1
+	 	where
+	 		1=1
+	 	and
+	 		class.class_no = #{classNo};
+	 </select>
+	 
+	  <!-- 해당 유저 클래스 최근 1개 상세보기 -->
+	 <select id="selectUserOneClass" parameterType="Clazz" resultType="Integer">
+	 	select
+	 		class_no as classNo
+	 	from
+	 		class
+	 	where
+	 		1=1
+	 	<if test="userNo>0">
+	 	and
+	 		user_no = #{userNo}
+	 	order by
+	 		class_no DESC
+	 	limit 0,1;
+	 	</if>
+	 	<if test="classNo>0">
+	 	and
+	 		class_no = #{classNo}
+	 	</if>
+	 </select>
+	 
+	 <!-- 유저클래스 상세보기 -->
+	 <select id="selectUserClass" parameterType="Clazz" resultType="Clazz">
+	 	select
+	 		class_no as classNo,
+	 		class_name as className,
+	 		class_desc as classDesc,
+	 		target_age as targetAge,
+	 		user_limit as userLimit,
+	 		open_type as openType,
+	 		start_date as startDate,
+	 		end_date as endDate,
+	 		class_img as classImg,
+	 		user_no as userNo
+	 	from
+	 		class
+	 	where
+	 		1=1
+	 	and
+	 		user_no = #{userNo}
+	 </select>
+	 <select id="selectStudentClass" resultType="clazz">
+	 	select 
+			class_no,
+			class_name,
+		    class_desc,
+		    target_age,
+		    user_limit,
+		    open_type,
+		    start_date,
+		    end_date,
+		    class_img,
+		    user_no
+		from (select * from class_signup where student_no = #{userNo} and is_approved = 1) signup
+			natural join class;
+	 </select>
+	 <!-- 전체검색 -->
+	 <select id="selectAllClass" parameterType="Clazz" resultType="Clazz">
+	 	select
+	 		class.class_no as classNo,
+	 		class.class_name as className,
+	 		class.class_desc as classDesc,
+	 		class.target_age as targetAge,
+	 		class.user_limit as userLimit,
+	 		class.open_type as openType,
+	 		class.start_date as startDate,
+	 		class.end_date as endDate,
+	 		class.class_img as classImg,
+	 		user.user_no as userNo,
+	 		user.user_name as teacherName,
+            class_signup.is_approved as approved,
+            studentCnt.student_cnt
+	 	from
+	 		class natural join user
+            left outer join class_signup on class_signup.student_no = #{userNo} 
+            and class_signup.class_no = class.class_no
+            left join
+            (select class_no, count(*) as student_cnt
+				from class_signup
+                where is_approved = 1
+                group by class_no) studentCnt
+			on class.class_no = studentCnt.class_no
+	 	where
+	 		1=1
+	 	and
+	 		open_type = 'public'
+	 	<!-- 검색조건 -->
+	 	<if test="classNo > 0">
+	 		and class_no = #{classNo}
+	 	</if>
+	 	<!-- 정렬조건 -->
+	 	order by class.class_no ASC
+	 	<!-- page처리 위한 limit -->
+		
+	 </select>
+	 
+	 <update id="updateClassImg" parameterType="Clazz">
+		update
+			class
+		set
+			class_img = #{classImg}
+		where
+			class_no = #{classNo}
+	</update>
+	
+	 <insert id="joinClassCall" parameterType="ClassSignUp">
+		insert into class_signup(
+	 		class_no,
+	 		student_no,
+	 		is_approved,
+	 		request_date,
+	 		signup_date
+	 		)
+	 	values (
+	 		#{classNo},
+	 		#{studentNo},
+	 		2,
+	 		now(),
+	 		null
+	 		)
+	</insert>
+	
+	<!-- 유저와 해당 클래스간 관계 보기 -->
+	 <select id="checkJoinClass" parameterType="ClassSignUp" resultType="ClassSignUp">
+	 	select
+	 		class_no as classNo,
+	 		student_no as studentNo,
+	 		is_approved as isApproved,
+	 		request_date as requestDate,
+	 		signup_date as signupDate
+	 	from
+	 		class_signup
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 	and
+	 		student_no = #{studentNo}
+	 </select>
+	 
+	<!-- 해당 클래스 가입 대기목록가져오기 -->
+	 <select id="callWaitClass" parameterType="ClassSignUp" resultType="ClassJoinList">
+	 	select
+	 		class_signup.class_no as classNo,
+	 		class_signup.student_no as studentNo,
+	 		user.user_id as userId,
+	 		user.user_name as userName,
+	 		user.birth_date as birthDate,
+	 		user.profile_img as profileImg
+	 	from
+	 		class_signup
+	 	left outer join 
+	 		user on user.user_no = class_signup.student_no
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 	and
+	 		class_signup.is_approved = 2;
+	 </select>
+	 
+	 <!-- 해당 클래스 가입 대기목록가져오기 -->
+	 <update id="updateClassJoin" parameterType="ClassSignUp">
+		update
+			class_signup
+		set
+			is_approved = #{isApproved},
+			signup_date = now()
+		where
+			class_no = #{classNo}
+		and
+			student_no = #{studentNo}	
+	</update>
+	
+	<!-- 해당 클래스  회원목록가져오기 -->
+	 <select id="ClassmemberList" parameterType="ClassSignUp" resultType="User">
+	 	select 
+	 		user.user_no as userNo,
+	 		user.user_id as userId,
+	 		user.user_name as userName,
+	 		user.nick_name as nickName,
+	 		user.profile_img as profileImg 
+	 	from 
+	 		class_signup 
+	 	right outer join user 
+	 		on user.user_no = class_signup.student_no 
+	 	where 
+	 		class_signup.class_no = #{classNo} 
+	 	and 
+	 		class_signup.is_approved=1;
+	 </select>
+	 
+	 <!-- 해당 클래스 탈퇴 -->
+	 <delete id="outClass" parameterType="ClassSignUp">
+	 	delete from
+	 		class_signup
+	 	where
+	 		1=1
+	 	and
+	 		class_no = #{classNo}
+	 	and
+	 		student_no = #{studentNo}
+	 </delete>
+	 
+</mapper>

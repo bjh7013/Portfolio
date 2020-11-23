@@ -1,0 +1,211 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.DictationDAO">
+
+	<!-- 
+		private int dictationNo; //받아쓰기 번호
+		private String dictationSentence; //받아쓰기 문장
+		private int homeworkNo; //숙제번호
+	 -->
+	 
+	 <!-- 입력 -->
+	 <insert id="createDictation" parameterType="Dictation" useGeneratedKeys="true" keyProperty="dictationNo">
+	 	insert into dictation(
+	 		dictation_sentence,
+	 		homework_no
+	 		)
+	 	values (
+	 		#{dictationSentence},
+	 		#{homeworkNo}
+	 		)
+	 </insert>
+	 <insert id="createDictations" parameterType="Dictation" useGeneratedKeys="true" keyProperty="dictationNo">
+	 	insert into dictation(
+	 		dictation_sentence,
+	 		homework_no
+	 	)
+	 	values
+	 	<foreach item="item" collection="list" separator=",">
+		        (#{item.dictationSentence}, #{item.homeworkNo})
+		 </foreach>
+	 </insert>
+	 
+	 <!-- 수정 -->
+	 <update id="updateDictation" parameterType="Dictation">
+	 	update
+	 		dictation
+	 	set
+	 		dictation_sentence = #{dictationSentence},
+	 		homework_no = #{homeworkNo},
+	 		audio_path = #{audioPath}
+	 	where
+	 		1=1
+	 	and
+	 		dictation_no = #{dictationNo}
+	 </update>
+	 
+	 <!-- 받아쓰기 1개 삭제 -->
+	 <delete id="deleteDictation" parameterType="Dictation">
+	 	delete from
+	 		dictation
+	 	where
+	 		1=1
+	 	and
+	 		dictation_no = #{dictationNo}
+	 </delete>
+	 
+	 
+	 <!-- 받아쓰기 1개 보기 -->
+	 <select id="selectOneDictation" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		dictation_sentence as dictationSentence,
+	 		homework_no as homeworkNo
+	 	from
+	 		dictation
+	 	where
+	 		1=1
+	 	and
+	 		dictation_no = #{dictationNo}
+	 </select>
+	 
+	 <!-- 받아쓰기 여러개~전체 보기 -->
+	 <select id="selectAllDictation" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		dictation_sentence as dictationSentence,
+	 		homework_no as homeworkNo,
+	 		dictation_no
+	 	from
+	 		dictation
+	 	where
+	 		1=1
+	 </select>
+	 
+	 <!-- 받아쓰기 여러개~전체 보기 -->
+	 <select id="selectDictationTest" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		dictation_no as dictationNo,
+	 		dictation_sentence as dictationSentence,
+	 		dictation_level as dictationLevel,
+	 		audio_path
+	 	from
+	 		dictation
+	 	where
+	 		dictation_level = #{dictationLevel}
+	 </select>
+	 
+	  <!-- 커스텀 받아쓰기문제 입력 -->
+	 <insert id="createProblem" parameterType="DictationSet" useGeneratedKeys="true" keyProperty="dictationsetNo">
+	 	insert into dictationset(
+	 		dictationset_name,
+	 		user_no
+	 		)
+	 	values (
+	 		#{dictationsetName},
+	 		#{userNo}
+	 		)
+	 </insert>
+	 
+	 <!-- 커스텀 받아쓰기문제 입력 -->
+	 <insert id="createProblems" parameterType="DictationSetContent">
+	 	insert into dictationset_content(
+	 		dictationset_no,
+	 		dictation_number,
+	 		dictation_problem,
+	 		audio_path
+	 		)
+	 	values (
+	 		#{dictationsetNo},
+	 		#{dictationNumber},
+	 		#{dictationProblem},
+	 		#{audioPath}
+	 		)
+	 </insert>
+	 
+	 <!-- 받아쓰기 여러개~전체 보기 -->
+	 <select id="selectAllDictationNo" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		count(distinct(dictation_level))
+	 	from
+	 		dictation
+	 	where
+	 		1=1
+	 </select>
+	 
+	 <!-- -
+	 <select id="validateC" resultType="boolean">
+		select if(count(*) > 0, true,false) 
+		from class
+		where class_no = 
+		(select class_no from homework natural join class_session where homework_no = #{homeworkNo})
+		and user_no = #{teacherNo};
+	</select>
+	  -->
+	 <select id="validateUD" resultType="boolean">
+		select if(count(*) > 0, true, false)
+		from (select * from dictation where dictation_no = #{dictationNo}) d 
+			natural join homework 
+			natural join class_session 
+			natural join class
+		where user_no = #{teacherNo};
+	</select>
+	
+	 <select id="selectByHomeworkNo" parameterType="Integer" resultType="Dictation">
+	 	select 
+	 		*
+	 	from 
+	 		dictation
+	 	where 
+	 		homework_no=#{homeworkNo}
+	 </select>
+	 
+	  <!-- 받아쓰기 레벨 전체 보기 -->
+	 <select id="selectDictationLevel" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		distinct(dictation_level) as dictationLevel
+	 	from
+	 		dictation
+	 	where
+	 		1=1
+	 </select>
+	 
+	  <!-- 유저 받아쓰기 세트 전체 보기 -->
+	 <select id="selectDictationSet" parameterType="DictationSet" resultType="DictationSet">
+	 	select
+	 		dictationset_no as dictationsetNo,
+	 		dictationset_name as dictationsetName
+	 	from
+	 		dictationset
+	 	where
+	 		1=1
+	 	and user_no = #{userNo}
+	 </select>
+	 
+	  <!-- 선택 받아쓰기 세트 내용 보기 -->
+	 <select id="selectLevel" parameterType="Dictation" resultType="Dictation">
+	 	select
+	 		dictation_sentence as dictationSentence,
+	 		audio_path as audioPath
+	 	from
+	 		dictation
+	 	where
+	 		1=1
+	 	and dictation_level = #{dictationLevel}
+	 </select>
+	 
+	  <!-- 커스텀 받아쓰기 세트 내용 보기 -->
+	 <select id="selectDictationSetContent" parameterType="DictationSetContent" resultType="DictationSetContent">
+	 	select
+	 		dictation_problem as dictationProblem,
+	 		audio_path as audioPath
+	 	from
+	 		dictationset_content
+	 	where
+	 		1=1
+	 	and 
+	 		dictationset_no = #{dictationsetNo}
+	 </select>
+	 
+	 
+	 
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mappers/gueset.xml -->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bungle.dao.KoreanDetailDAO">
+
+			
+	
+	<!-- insert 처리 -->
+	<insert id="createKoreandetail" parameterType="Koreandetail">
+		insert into koreandetail_test( 
+						koreandetail_no,
+						is_correct,
+						student_no
+				)
+				value (
+						#{koreandetailNo},
+						#{isCorrect},
+						#{studentNo}
+				) 
+	</insert>
+	
+	<!-- udpate 처리 -->
+	<update id="updateKoreandetail" parameterType="Koreandetail">
+		update koreandetail_test 
+		   set 
+		   	   koreandetail_no=#{koreandetailNo},
+		   	   student_no = #{studentNo},
+			   is_correct = #{isCorrect}
+		 where submit_no = #{submitNo}
+	</update>
+	
+	<!-- delete 처리 -->
+	<delete id="deletekoreandetail" parameterType="Koreandetail">
+		delete from koreandetail_test 
+		where submit_no=#{submitNo}
+	</delete>
+	
+	<!-- 회원번호로 select 처리 -->
+	<select id="selectUserCorrect" parameterType="koreandetail" resultType="koreandetail">
+		select 
+			*
+		  from koreandetail_test 
+		 where student_no = #{studentNo} and  is_correct = 0
+	</select>
+	
+	<!-- 회원번호로 select 처리 -->
+	<select id="selectUserCorrectCount" parameterType="koreandetail" resultType="Integer">
+		select 
+			count(*)
+		  from koreandetail_test 
+		 where student_no = #{studentNo} and  is_correct = 1
+	</select>
+	<!-- 회원번호 문제번호로 select 처리 -->
+	<select id="selectOneKoreandetail" parameterType="koreandetail" resultType="Koreandetail">
+		select 
+			*
+		  from koreandetail_test 
+		 where student_no = #{studentNo} 
+		 and koreandetail_no=#{koreandetailNo} 
+	</select>
+
+</mapper>
