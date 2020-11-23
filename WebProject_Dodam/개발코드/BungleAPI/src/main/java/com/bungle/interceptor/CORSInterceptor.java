@@ -1,4 +1,4 @@
-package com.bungle.interceptor;
+﻿package com.bungle.interceptor;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -26,9 +26,6 @@ public class CORSInterceptor  extends HandlerInterceptorAdapter{
 		System.out.println("CORS INTERCEPTOR==========================================");
 		response.setHeader("Access-Control-Allow-Origin", "*");//와일드카드 x.
 		System.out.println(response.getHeader("Access-Control-Allow-Origin"));
-//		response.setHeader("Access-Control-Allow-Origin", "http://k3d206.p.ssafy.io");//와일드카드 x.
-//		response.setHeader("Access-Control-Allow-Origin", "http://localhost:8082");//와일드카드 x.
-//		response.addHeader("Access-Control-Allow-Origin", "http://192.168.1.7:9999");//와일드카드 x
         response.setHeader("Access-Control-Allow-Methods", "GET,POST,DELETE,PUT,OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "*");
         response.addHeader("Access-Control-Allow-Headers", "content-type");
